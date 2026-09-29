@@ -157,8 +157,8 @@ export default function LoginPage() {
 
           <div className="pt-2 border-t border-[#221c3b] text-center text-xs text-zinc-400">
             Don't have an account yet?{' '}
-            <Link href="/register" className="text-purple-400 hover:text-purple-300 font-medium">
-              Create reseller account
+            <Link href="/register" className="text-sky-400 hover:text-sky-300 font-medium">
+              Register with Telegram
             </Link>
           </div>
         </div>
