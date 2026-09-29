@@ -20,12 +20,36 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const existing = await this.prisma.user.findUnique({
-      where: { email: dto.email.toLowerCase().trim() },
+    const rawTg = dto.telegram.trim();
+    const cleanTg = rawTg.startsWith('@') ? rawTg : `@${rawTg}`;
+    const strippedTg = rawTg.replace(/^@/, '');
+
+    // Check if Telegram account is already used
+    const existingTg = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { telegram: rawTg },
+          { telegram: cleanTg },
+          { telegram: strippedTg },
+        ],
+      },
     });
 
-    if (existing) {
-      throw new ConflictException('Email is already registered');
+    if (existingTg) {
+      throw new ConflictException('This Telegram account is already registered. Please sign in or use another account.');
+    }
+
+    // Determine email (use provided or auto-generate based on telegram)
+    const userEmail = dto.email?.trim()
+      ? dto.email.toLowerCase().trim()
+      : `${strippedTg.toLowerCase()}@telegram.jasmintopup.site`;
+
+    const existingEmail = await this.prisma.user.findUnique({
+      where: { email: userEmail },
+    });
+
+    if (existingEmail) {
+      throw new ConflictException('Email is already registered. Please provide another email or leave it blank.');
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -35,7 +59,8 @@ export class AuthService {
     const result = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
-          email: dto.email.toLowerCase().trim(),
+          email: userEmail,
+          telegram: cleanTg,
           passwordHash,
           name: dto.name.trim(),
           role: Role.RESELLER,
@@ -47,6 +72,7 @@ export class AuthService {
         data: {
           userId: user.id,
           companyName: dto.companyName?.trim() || null,
+          telegram: cleanTg,
           balance: 0.0,
           currency: 'USD',
         },
@@ -62,6 +88,7 @@ export class AuthService {
       user: {
         id: result.user.id,
         email: result.user.email,
+        telegram: result.user.telegram,
         name: result.user.name,
         role: result.user.role,
         status: result.user.status,
@@ -71,24 +98,38 @@ export class AuthService {
         balance: result.reseller.balance.toString(),
         currency: result.reseller.currency,
         companyName: result.reseller.companyName,
+        telegram: result.reseller.telegram,
       },
     };
   }
 
   async login(dto: LoginDto) {
-    const email = dto.email.toLowerCase().trim();
-    const user = await this.prisma.user.findUnique({
-      where: { email },
+    const rawId = dto.email.trim();
+    const withAt = rawId.startsWith('@') ? rawId : `@${rawId}`;
+    const withoutAt = rawId.replace(/^@/, '');
+    const fallbackEmail = `${withoutAt.toLowerCase()}@telegram.jasmintopup.site`;
+
+    // Find by Email, Telegram handle, or Telegram fallback email
+    const user = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: rawId.toLowerCase() },
+          { telegram: rawId },
+          { telegram: withAt },
+          { telegram: withoutAt },
+          { email: fallbackEmail },
+        ],
+      },
       include: { reseller: true },
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid email/Telegram account or password');
     }
 
     const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
     if (!isMatch) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid email/Telegram account or password');
     }
 
     if (user.status !== UserStatus.ACTIVE) {
@@ -102,6 +143,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        telegram: user.telegram,
         name: user.name,
         role: user.role,
         status: user.status,
@@ -112,6 +154,7 @@ export class AuthService {
             balance: user.reseller.balance.toString(),
             currency: user.reseller.currency,
             companyName: user.reseller.companyName,
+            telegram: user.reseller.telegram,
           }
         : null,
     };
@@ -147,6 +190,7 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
+      telegram: user.telegram,
       name: user.name,
       role: user.role,
       status: user.status,
@@ -155,6 +199,7 @@ export class AuthService {
         ? {
             id: user.reseller.id,
             companyName: user.reseller.companyName,
+            telegram: user.reseller.telegram,
             balance: user.reseller.balance.toString(),
             currency: user.reseller.currency,
             pricingTier: user.reseller.pricingTier,

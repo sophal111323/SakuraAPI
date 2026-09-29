@@ -4,13 +4,14 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowRight, AlertCircle, Loader2, Send } from 'lucide-react';
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
 
   const [name, setName] = useState('');
+  const [telegram, setTelegram] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,8 +25,9 @@ export default function RegisterPage() {
 
     const res = await register({
       name,
+      telegram: telegram.trim(),
       companyName: companyName.trim() || undefined,
-      email,
+      email: email.trim() || undefined,
       password,
     });
     setSubmitting(false);
@@ -80,6 +82,29 @@ export default function RegisterPage() {
             </div>
 
             <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
+                  <Send className="w-3.5 h-3.5 text-sky-400" />
+                  <span>Telegram Account (@username)</span>
+                </label>
+                <span className="text-[10px] text-sky-400 bg-sky-500/10 border border-sky-500/20 px-1.5 py-0.5 rounded font-medium">
+                  Required
+                </span>
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={telegram}
+                  onChange={(e) => setTelegram(e.target.value)}
+                  placeholder="@your_telegram or username"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b0914] border border-[#2d2454] focus:border-sky-500 text-sm text-white placeholder-zinc-500 focus:outline-none transition"
+                />
+              </div>
+              <p className="text-[10px] text-zinc-400 mt-1">Used for balance funding approvals, API support & fast login</p>
+            </div>
+
+            <div>
               <label className="block text-xs font-medium text-zinc-300 mb-1.5">
                 Business / Store Name <span className="text-zinc-500 font-normal">(Optional)</span>
               </label>
@@ -93,13 +118,14 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1.5">Email Address</label>
+              <label className="block text-xs font-medium text-zinc-300 mb-1.5">
+                Email Address <span className="text-zinc-500 font-normal">(Optional)</span>
+              </label>
               <input
                 type="email"
-                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="alexander@gamevault.com"
+                placeholder="alexander@gamevault.com (Optional)"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b0914] border border-[#2d2454] text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 transition"
               />
             </div>

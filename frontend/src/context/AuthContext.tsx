@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 export interface User {
   id: string;
   email: string;
+  telegram?: string;
   name: string;
   role: 'ADMIN' | 'RESELLER';
   status: 'ACTIVE' | 'SUSPENDED' | 'PENDING';
@@ -12,6 +13,7 @@ export interface User {
 
 export interface Reseller {
   id: string;
+  telegram?: string;
   balance: string;
   currency: string;
   companyName?: string;
@@ -24,7 +26,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (data: { email: string; password: string; name: string; companyName?: string }) => Promise<{ success: boolean; error?: string }>;
+  register: (data: { telegram: string; email?: string; password: string; name: string; companyName?: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
 }
@@ -61,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({
           id: data.id,
           email: data.email,
+          telegram: data.telegram,
           name: data.name,
           role: data.role,
           status: data.status,
@@ -124,7 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (data: { email: string; password: string; name: string; companyName?: string }) => {
+  const register = async (data: { telegram: string; email?: string; password: string; name: string; companyName?: string }) => {
     try {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
