@@ -1,0 +1,24 @@
+{
+  "name": "sakura-api",
+  "version": "1.0.0",
+  "description": "Enterprise Game Top-up Reseller Platform connecting resellers to upstream stock via SakuraAPI",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm --prefix backend run start:dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "prisma:generate": "npm --prefix backend run prisma generate",
+    "prisma:migrate": "npm --prefix backend npx prisma migrate dev",
+    "prisma:studio": "npm --prefix backend npx prisma studio"
+  },
+  "keywords": [
+    "sakura-api",
+    "game-topup",
+    "reseller-api",
+    "soratopup"
+  ],
+  "author": "SakuraAPI",
+  "license": "ISC"
+}

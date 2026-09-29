@@ -1,0 +1,269 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  RESELLER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum ResellerStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum ApiKeyEnvironment {
+  LIVE
+  TEST
+}
+
+enum ApiKeyStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum GameStatus {
+  ACTIVE
+  MAINTENANCE
+  INACTIVE
+}
+
+enum ProductStatus {
+  AVAILABLE
+  OUT_OF_STOCK
+  DISABLED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum TransactionType {
+  ADMIN_CREDIT
+  ADMIN_DEBIT
+  ORDER_PAYMENT
+  ORDER_REFUND
+  MANUAL_ADJUSTMENT
+}
+
+enum TransactionStatus {
+  COMPLETED
+  PENDING
+  FAILED
+}
+
+model User {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  passwordHash String
+  name         String
+  role         Role        @default(RESELLER)
+  status       UserStatus  @default(ACTIVE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  reseller     Reseller?
+  adminActions AdminAction[]
+
+  @@map("users")
+}
+
+model Reseller {
+  id               String         @id @default(uuid())
+  userId           String         @unique
+  companyName      String?
+  balance          Decimal        @default(0.0000) @db.Decimal(14, 4)
+  currency         String         @default("USD")
+  status           ResellerStatus @default(ACTIVE)
+  pricingTier      String         @default("DEFAULT")
+  markupPercentage Decimal        @default(0.00) @db.Decimal(5, 2)
+  fixedMarkup      Decimal        @default(0.0000) @db.Decimal(10, 4)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiKeys          ApiKey[]
+  orders           Order[]
+  transactions     BalanceTransaction[]
+  apiLogs          ApiRequestLog[]
+
+  @@map("resellers")
+}
+
+model ApiKey {
+  id                 String            @id @default(uuid())
+  resellerId         String
+  name               String            @default("Default Key")
+  keyPrefix          String
+  keyHash            String            @unique
+  environment        ApiKeyEnvironment @default(LIVE)
+  status             ApiKeyStatus      @default(ACTIVE)
+  rateLimitPerMinute Int               @default(100)
+  lastUsedAt         DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  reseller           Reseller          @relation(fields: [resellerId], references: [id], onDelete: Cascade)
+  apiLogs            ApiRequestLog[]
+
+  @@index([resellerId])
+  @@index([keyPrefix])
+  @@map("api_keys")
+}
+
+model Game {
+  id                String     @id @default(uuid())
+  code              String     @unique
+  name              String
+  category          String?
+  iconUrl           String?
+  requiresServerId  Boolean    @default(false)
+  serverIdLabel     String?    @default("Server ID")
+  playerIdLabel     String?    @default("Player ID")
+  status            GameStatus @default(ACTIVE)
+  metadata          Json?
+  lastSyncedAt      DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  products          Product[]
+  orders            Order[]
+
+  @@index([code])
+  @@map("games")
+}
+
+model Product {
+  id                String        @id @default(uuid())
+  gameId            String
+  code              String
+  name              String
+  providerPrice     Decimal       @db.Decimal(12, 4)
+  resellerPrice     Decimal       @db.Decimal(12, 4)
+  status            ProductStatus @default(AVAILABLE)
+  providerProductId String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  game              Game          @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  orders            Order[]
+
+  @@unique([gameId, code])
+  @@index([gameId])
+  @@index([code])
+  @@map("products")
+}
+
+model Order {
+  id               String      @id @default(uuid())
+  orderNumber      String      @unique
+  resellerId       String
+  resellerOrderId  String?
+  gameId           String
+  productId        String
+  playerId         String
+  serverId         String?
+  amount           Decimal     @db.Decimal(12, 4)
+  providerPrice    Decimal     @db.Decimal(12, 4)
+  status           OrderStatus @default(PENDING)
+  providerOrderId  String?
+  providerResponse Json?
+  failureReason    String?
+  ipAddress        String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  reseller         Reseller    @relation(fields: [resellerId], references: [id], onDelete: Restrict)
+  game             Game        @relation(fields: [gameId], references: [id], onDelete: Restrict)
+  product          Product     @relation(fields: [productId], references: [id], onDelete: Restrict)
+  transactions     BalanceTransaction[]
+
+  @@unique([resellerId, resellerOrderId])
+  @@index([orderNumber])
+  @@index([resellerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model BalanceTransaction {
+  id                String            @id @default(uuid())
+  transactionNumber String            @unique
+  resellerId        String
+  amount            Decimal           @db.Decimal(14, 4)
+  previousBalance   Decimal           @db.Decimal(14, 4)
+  newBalance        Decimal           @db.Decimal(14, 4)
+  type              TransactionType
+  status            TransactionStatus @default(COMPLETED)
+  orderId           String?
+  adminId           String?
+  note              String?
+  createdAt         DateTime          @default(now())
+
+  reseller          Reseller          @relation(fields: [resellerId], references: [id], onDelete: Restrict)
+  order             Order?            @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([resellerId])
+  @@index([transactionNumber])
+  @@index([type])
+  @@index([createdAt])
+  @@map("balance_transactions")
+}
+
+model ApiRequestLog {
+  id             String    @id @default(uuid())
+  requestId      String    @unique
+  resellerId     String?
+  apiKeyId       String?
+  endpoint       String
+  httpMethod     String
+  statusCode     Int
+  responseTimeMs Int
+  ipAddress      String?
+  userAgent      String?
+  errorMessage   String?
+  createdAt      DateTime  @default(now())
+
+  reseller       Reseller? @relation(fields: [resellerId], references: [id], onDelete: SetNull)
+  apiKey         ApiKey?   @relation(fields: [apiKeyId], references: [id], onDelete: SetNull)
+
+  @@index([resellerId])
+  @@index([apiKeyId])
+  @@index([endpoint])
+  @@index([statusCode])
+  @@index([createdAt])
+  @@map("api_request_logs")
+}
+
+model AdminAction {
+  id           String   @id @default(uuid())
+  adminId      String
+  action       String
+  targetEntity String
+  targetId     String?
+  details      Json?
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+
+  admin        User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("admin_actions")
+}
