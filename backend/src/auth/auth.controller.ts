@@ -29,6 +29,15 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @Post('telegram')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login or Register directly with Telegram OAuth Widget' })
+  @ApiResponse({ status: 200, description: 'Authenticated successfully with Telegram' })
+  @ApiResponse({ status: 401, description: 'Invalid Telegram signature' })
+  async telegramAuth(@Body() dto: any) {
+    return this.authService.telegramLogin(dto);
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('api-key')

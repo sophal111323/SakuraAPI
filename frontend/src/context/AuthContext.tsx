@@ -27,6 +27,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (data: { telegram: string; email?: string; password: string; name: string; companyName?: string }) => Promise<{ success: boolean; error?: string }>;
+  telegramAuth: (telegramData: any) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
 }
@@ -160,6 +161,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const telegramAuth = async (telegramData: any) => {
+    try {
+      const res = await fetch(`${API_URL}/auth/telegram`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(telegramData),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        return {
+          success: false,
+          error: json.error?.message || json.message || 'Telegram authentication failed',
+        };
+      }
+
+      const payload = json.data || json;
+      const receivedToken = payload.accessToken;
+
+      localStorage.setItem('sakura_token', receivedToken);
+      setToken(receivedToken);
+      setUser(payload.user);
+      setReseller(payload.reseller || null);
+
+      return { success: true };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message || 'Network error connecting to backend',
+      };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('sakura_token');
     setToken(null);
@@ -176,6 +210,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         login,
         register,
+        telegramAuth,
         logout,
         refreshProfile,
       }}

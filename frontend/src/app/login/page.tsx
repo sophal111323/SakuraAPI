@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { Shield, Key, ArrowRight, AlertCircle, Check, Loader2, Sparkles } from 'lucide-react';
+import { Shield, Key, ArrowRight, AlertCircle, Check, Loader2, Sparkles, Send } from 'lucide-react';
+import TelegramLoginWidget from '@/components/TelegramLoginWidget';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -85,6 +86,22 @@ export default function LoginPage() {
 
         {/* Form Card */}
         <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl p-6 sm:p-8 shadow-2xl space-y-5">
+          {/* Telegram 1-Click Login */}
+          <div className="bg-[#181333] border border-[#372b6b] rounded-xl p-4 text-center space-y-2.5">
+            <div className="text-xs font-semibold text-white flex items-center justify-center gap-1.5">
+              <Send className="w-3.5 h-3.5 text-sky-400" />
+              <span>Sign in with Telegram</span>
+            </div>
+            <TelegramLoginWidget buttonText="Sign In with Telegram" />
+          </div>
+
+          <div className="relative flex items-center justify-center my-3">
+            <div className="border-t border-[#261f43] w-full" />
+            <span className="bg-[#130f26] px-3 text-[10px] text-zinc-500 uppercase tracking-wider font-semibold absolute">
+              or sign in with password
+            </span>
+          </div>
+
           {error && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />

@@ -68,15 +68,17 @@ enum TransactionStatus {
 }
 
 model User {
-  id           String      @id @default(uuid())
-  email        String      @unique
-  telegram     String?     @unique
-  passwordHash String
-  name         String
-  role         Role        @default(RESELLER)
-  status       UserStatus  @default(ACTIVE)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id               String      @id @default(uuid())
+  email            String      @unique
+  telegram         String?     @unique
+  telegramId       String?     @unique
+  telegramPhotoUrl String?
+  passwordHash     String
+  name             String
+  role             Role        @default(RESELLER)
+  status           UserStatus  @default(ACTIVE)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   reseller     Reseller?
   adminActions AdminAction[]
@@ -89,6 +91,8 @@ model Reseller {
   userId           String         @unique
   companyName      String?
   telegram         String?
+  telegramId       String?
+  telegramPhotoUrl String?
   balance          Decimal        @default(0.0000) @db.Decimal(14, 4)
   currency         String         @default("USD")
   status           ResellerStatus @default(ACTIVE)

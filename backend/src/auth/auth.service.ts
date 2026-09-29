@@ -12,11 +12,16 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Role, UserStatus } from '@prisma/client';
 
+import { ConfigService } from '@nestjs/config';
+import * as crypto from 'crypto';
+import { TelegramAuthDto } from './dto/telegram-auth.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -207,6 +212,119 @@ export class AuthService {
             fixedMarkup: user.reseller.fixedMarkup.toString(),
             apiKeysCount: user.reseller.apiKeys.length,
             apiKeys: user.reseller.apiKeys,
+          }
+        : null,
+    };
+  }
+
+  verifyTelegramHash(data: TelegramAuthDto): boolean {
+    const botToken =
+      this.configService.get<string>('TELEGRAM_BOT_TOKEN') ||
+      '8953849304:AAFR_30mTslKWlKY49qY50tTN3jCiXXmaN4';
+
+    const checkArray: string[] = [];
+    const fields: (keyof TelegramAuthDto)[] = ['auth_date', 'first_name', 'id', 'last_name', 'photo_url', 'username'];
+
+    for (const key of fields) {
+      if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
+        checkArray.push(`${key}=${data[key]}`);
+      }
+    }
+
+    checkArray.sort();
+    const dataCheckString = checkArray.join('\n');
+
+    const secretKey = crypto.createHash('sha256').update(botToken).digest();
+    const hash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
+
+    return hash.toLowerCase() === data.hash.toLowerCase();
+  }
+
+  async telegramLogin(dto: TelegramAuthDto) {
+    const isValid = this.verifyTelegramHash(dto);
+    if (!isValid) {
+      throw new UnauthorizedException('Telegram signature verification failed. Please try again.');
+    }
+
+    const tgId = dto.id.toString();
+    const cleanUsername = dto.username ? `@${dto.username.replace(/^@/, '')}` : null;
+    const fullName = [dto.first_name, dto.last_name].filter(Boolean).join(' ').trim() || `Telegram User ${tgId}`;
+
+    // Find existing user by telegramId, telegram handle, or fallback email
+    let user = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { telegramId: tgId },
+          cleanUsername ? { telegram: cleanUsername } : undefined,
+          { email: `${tgId}@telegram.jasmintopup.site` },
+        ].filter(Boolean) as any,
+      },
+      include: { reseller: true },
+    });
+
+    if (!user) {
+      const email = cleanUsername
+        ? `${cleanUsername.replace('@', '').toLowerCase()}@telegram.jasmintopup.site`
+        : `${tgId}@telegram.jasmintopup.site`;
+
+      const randomPassword = crypto.randomBytes(16).toString('hex');
+      const passwordHash = await bcrypt.hash(randomPassword, 10);
+
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          name: fullName,
+          telegramId: tgId,
+          telegram: cleanUsername || `@id${tgId}`,
+          telegramPhotoUrl: dto.photo_url || null,
+          passwordHash,
+          role: Role.RESELLER,
+          status: UserStatus.ACTIVE,
+          reseller: {
+            create: {
+              companyName: `${dto.first_name}'s Store`,
+              telegram: cleanUsername || `@id${tgId}`,
+              telegramId: tgId,
+              telegramPhotoUrl: dto.photo_url || null,
+              balance: 0.0,
+              currency: 'USD',
+            },
+          },
+        },
+        include: { reseller: true },
+      });
+    } else {
+      // Update missing telegram fields if needed
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          telegramId: tgId,
+          telegramPhotoUrl: dto.photo_url || user.telegramPhotoUrl,
+          telegram: user.telegram || cleanUsername,
+        },
+      });
+    }
+
+    const token = this.generateToken(user);
+
+    return {
+      accessToken: token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        telegram: user.telegram,
+        telegramPhotoUrl: user.telegramPhotoUrl,
+        role: user.role,
+        status: user.status,
+      },
+      reseller: user.reseller
+        ? {
+            id: user.reseller.id,
+            balance: user.reseller.balance.toString(),
+            currency: user.reseller.currency,
+            companyName: user.reseller.companyName,
+            telegram: user.reseller.telegram,
           }
         : null,
     };
