@@ -218,6 +218,10 @@ export class AuthService {
   }
 
   verifyTelegramHash(data: TelegramAuthDto): boolean {
+    if (!data || !data.hash || !data.id) {
+      return false;
+    }
+
     const botToken =
       this.configService.get<string>('TELEGRAM_BOT_TOKEN') ||
       '8953849304:AAFR_30mTslKWlKY49qY50tTN3jCiXXmaN4';
