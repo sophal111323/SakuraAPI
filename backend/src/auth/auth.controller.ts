@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -43,8 +43,11 @@ export class AuthController {
   @ApiOperation({ summary: 'Login or Register with Telegram OpenID Connect (OIDC)' })
   @ApiResponse({ status: 200, description: 'Authenticated successfully via Telegram OIDC' })
   @ApiResponse({ status: 401, description: 'Invalid authorization code or exchange failure' })
-  async telegramOidcAuth(@Body() body: { code: string; redirectUri: string }) {
-    return this.authService.telegramOidcLogin(body.code, body.redirectUri);
+  async telegramOidcAuth(@Body() body: { code?: string; redirectUri?: string }) {
+    if (!body || !body.code) {
+      throw new BadRequestException('Authorization code is required');
+    }
+    return this.authService.telegramOidcLogin(body.code, body.redirectUri || '');
   }
 
   @Get('me')
