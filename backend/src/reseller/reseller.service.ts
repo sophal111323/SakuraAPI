@@ -93,4 +93,54 @@ export class ResellerService {
       })),
     };
   }
+
+  async getResellerProfile(resellerId: string) {
+    const reseller = await this.prisma.reseller.findUnique({
+      where: { id: resellerId },
+      include: {
+        user: { select: { id: true, name: true, email: true, telegram: true } },
+      },
+    });
+
+    if (!reseller) {
+      throw new NotFoundException('Reseller profile not found');
+    }
+
+    const [totalOrders, totalSpentAgg] = await Promise.all([
+      this.prisma.order.count({ where: { resellerId } }),
+      this.prisma.order.aggregate({
+        where: { resellerId, status: 'SUCCESS' },
+        _sum: { amount: true },
+      }),
+    ]);
+
+    const totalSpent = Number(totalSpentAgg._sum.amount || 0);
+    const balance = parseFloat(reseller.balance.toString());
+
+    return {
+      status: 'SUCCESS',
+      success: true,
+      user: {
+        id: reseller.id,
+        telegram_id: reseller.user.telegram || reseller.user.email,
+        username: reseller.user.name,
+        balance: balance,
+        status: reseller.status.toLowerCase(),
+        role: 'reseller',
+        total_orders: totalOrders,
+        total_spent: totalSpent,
+        created_at: reseller.createdAt,
+        updated_at: reseller.updatedAt,
+      },
+      reseller: {
+        id: reseller.id,
+        name: reseller.user.name,
+        email: reseller.user.email,
+        balance: balance,
+        currency: reseller.currency,
+        status: reseller.status,
+        companyName: reseller.companyName,
+      },
+    };
+  }
 }
