@@ -559,25 +559,15 @@ export default function FundingPage() {
                     </div>
 
                     {/* Action buttons on QR Screen */}
-                    <div className="flex items-center gap-2.5">
-                      {khqrData.deeplink && (
-                        <a
-                          href={khqrData.deeplink}
-                          className="flex-1 py-2.5 rounded-xl bg-[#005f73] hover:bg-[#0a9396] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md active:scale-95"
-                        >
-                          <Smartphone className="w-4 h-4" />
-                          <span>បើកក្នុង ABA Mobile</span>
-                        </a>
-                      )}
-
-                      <button
-                        onClick={copyQrString}
-                        className="px-3.5 py-2.5 rounded-xl bg-[#1d163e] hover:bg-[#291f54] border border-[#3b2d6d] text-purple-200 text-xs font-semibold transition flex items-center gap-1.5 active:scale-95"
+                    {khqrData.deeplink && (
+                      <a
+                        href={khqrData.deeplink}
+                        className="w-full py-2.5 rounded-xl bg-[#005f73] hover:bg-[#0a9396] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md active:scale-95"
                       >
-                        {copiedQr ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                        <span>{copiedQr ? 'បានចម្លង' : 'ចម្លង QR String'}</span>
-                      </button>
-                    </div>
+                        <Smartphone className="w-4 h-4" />
+                        <span>បើកក្នុង ABA Mobile</span>
+                      </a>
+                    )}
 
                     <button
                       onClick={() => setKhqrData(null)}
