@@ -191,23 +191,23 @@ export default function Home() {
 
         {/* Hero Section */}
         <section className="text-center max-w-4xl mx-auto space-y-6 pt-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/25 text-pink-300 text-xs font-semibold shadow-inner">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/25 text-pink-300 text-xs font-semibold shadow-inner animate-slide-up-1">
             <Sparkles className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
             <span>ប្រព័ន្ធចែកចាយស្វ័យប្រវត្តិកំពូល • Next-Gen Game Top-up API</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">
+          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-[1.15] animate-slide-up-2">
             ប្រព័ន្ធ Top-up ហ្គេមស្វ័យប្រវត្តិ <br />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-400 to-sky-400">
               សម្រាប់តំណាងចែកចាយ (Reseller)
             </span>
           </h1>
 
-          <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+          <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed animate-slide-up-3">
             SakuraAPI ផ្ដល់ជូនដំណោះស្រាយ API ល្បឿនលឿន និងស្តុកហ្គេមកំពូលៗ (Mobile Legends, Free Fire, PUBG...) ដោយស្វ័យប្រវត្តិតាមរយៈ Telegram 100% ដំណើរការ 24/7 គ្មានការរអាក់រអួល។
           </p>
 
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-4 animate-slide-up-4">
             <Link
               href="/register"
               className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white font-semibold text-sm transition-all duration-300 shadow-xl shadow-purple-600/30 flex items-center gap-2 active:scale-95"
@@ -226,7 +226,7 @@ export default function Home() {
           </div>
 
           {/* Stats Ribbon */}
-          <div className="pt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
+          <div className="pt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto animate-slide-up-5">
             <div className="p-4 rounded-2xl bg-[#120d26]/80 border border-[#271d4a] text-center">
               <div className="text-2xl sm:text-3xl font-extrabold text-white">99.98%</div>
               <div className="text-xs text-zinc-400 mt-0.5">ស្ថិរភាពប្រព័ន្ធ (Uptime)</div>

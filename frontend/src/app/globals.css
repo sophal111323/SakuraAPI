@@ -33,3 +33,41 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #433575;
 }
+
+/* Ultra-smooth slide up fade animation (under to above) */
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(34px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up-1 {
+  animation: slideUpFade 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+  will-change: transform, opacity;
+}
+
+.animate-slide-up-2 {
+  animation: slideUpFade 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+  will-change: transform, opacity;
+}
+
+.animate-slide-up-3 {
+  animation: slideUpFade 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
+  will-change: transform, opacity;
+}
+
+.animate-slide-up-4 {
+  animation: slideUpFade 1s cubic-bezier(0.16, 1, 0.3, 1) 0.46s both;
+  will-change: transform, opacity;
+}
+
+.animate-slide-up-5 {
+  animation: slideUpFade 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+  will-change: transform, opacity;
+}
+
