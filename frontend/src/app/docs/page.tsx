@@ -28,18 +28,316 @@ import {
   HelpCircle
 } from 'lucide-react';
 
-export default function ApiDocsPage() {
-  const [activeLang, setActiveLang] = useState<'curl' | 'termux' | 'js' | 'php' | 'python'>('curl');
-  const [copiedSection, setCopiedSection] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<string>('auth');
+type SupportedLang = 'curl' | 'termux' | 'python' | 'php' | 'js';
 
-  const langLabels: Record<string, string> = {
-    curl: 'cURL (CLI)',
-    termux: 'Termux (Android)',
-    js: 'Node.js (Axios)',
-    php: 'PHP',
-    python: 'Python (Requests)'
-  };
+interface CodeBlockBoxProps {
+  endpoint: string;
+  activeLang: SupportedLang;
+  setActiveLang: (lang: SupportedLang) => void;
+  code: string;
+  copyCode: (id: string, code: string) => void;
+  isCopied: boolean;
+}
+
+function CodeBlockBox({
+  endpoint,
+  activeLang,
+  setActiveLang,
+  code,
+  copyCode,
+  isCopied
+}: CodeBlockBoxProps) {
+  const tabs: { id: SupportedLang; label: string }[] = [
+    { id: 'curl', label: 'cURL' },
+    { id: 'termux', label: 'Termux' },
+    { id: 'python', label: 'Python' },
+    { id: 'php', label: 'PHP' },
+    { id: 'js', label: 'Node.js' }
+  ];
+
+  return (
+    <div className="space-y-2 pt-2">
+      {/* Header Label */}
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-extrabold tracking-widest uppercase text-amber-500/90 flex items-center gap-1.5">
+          <Code2 className="w-3.5 h-3.5 text-amber-400" />
+          CODE EXAMPLES
+        </span>
+      </div>
+
+      {/* Code Box Container */}
+      <div className="bg-[#0c081e] border border-[#271d4a] rounded-2xl overflow-hidden shadow-2xl transition-all duration-200 hover:border-pink-500/35">
+        {/* Top Header inside Code Box */}
+        <div className="flex items-center justify-between px-3 py-2 bg-[#130d2d] border-b border-[#231844]">
+          {/* Language Tabs */}
+          <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5">
+            {tabs.map((tab) => {
+              const active = activeLang === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveLang(tab.id)}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all duration-150 whitespace-nowrap ${
+                    active
+                      ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-md shadow-pink-600/30 ring-1 ring-pink-400/40'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Copy Button */}
+          <button
+            type="button"
+            onClick={() => copyCode(endpoint, code)}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-zinc-300 hover:text-white bg-[#1a1238] hover:bg-[#251a50] border border-[#342468] transition-all active:scale-95 ml-2 shrink-0"
+          >
+            {isCopied ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400 text-[11px]">បានចម្លង</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5 text-zinc-400" />
+                <span className="text-[11px]">Copy</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Code Content */}
+        <pre className="p-4 font-mono text-xs text-purple-200 overflow-x-auto leading-relaxed bg-[#070414] scrollbar-thin scrollbar-thumb-purple-900/50">
+          <code>{code}</code>
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+interface ResponseBlockBoxProps {
+  endpoint: string;
+  successJson: string;
+  failedJson: string;
+  successBadge?: string;
+  failedBadge?: string;
+  copyCode: (id: string, code: string) => void;
+  isCopied: boolean;
+}
+
+function ResponseBlockBox({
+  endpoint,
+  successJson,
+  failedJson,
+  successBadge = '200 OK',
+  failedBadge = '400 ERROR',
+  copyCode,
+  isCopied
+}: ResponseBlockBoxProps) {
+  const [tab, setTab] = useState<'success' | 'failed'>('success');
+  const activeContent = tab === 'success' ? successJson : failedJson;
+
+  return (
+    <div className="space-y-2 pt-2">
+      {/* Header Label */}
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-extrabold tracking-widest uppercase text-amber-500/90 flex items-center gap-1.5">
+          <Server className="w-3.5 h-3.5 text-amber-400" />
+          EXAMPLE RESPONSE
+        </span>
+      </div>
+
+      {/* Response Box Container */}
+      <div className="bg-[#0c081e] border border-[#271d4a] rounded-2xl overflow-hidden shadow-2xl transition-all duration-200 hover:border-pink-500/35">
+        {/* Top Header inside Response Box */}
+        <div className="flex items-center justify-between px-3 py-2 bg-[#130d2d] border-b border-[#231844]">
+          {/* Status Tabs */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setTab('success')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                tab === 'success'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm shadow-emerald-500/10 font-bold'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5 border border-transparent'
+              }`}
+            >
+              <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 ${tab === 'success' ? 'block' : 'hidden'}`}></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span>Success</span>
+              <span className="text-[10px] font-mono opacity-80 px-1 py-0.2 bg-emerald-500/20 rounded border border-emerald-500/30">
+                {successBadge}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setTab('failed')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                tab === 'failed'
+                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm shadow-rose-500/10 font-bold'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5 border border-transparent'
+              }`}
+            >
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+              <span>Failed</span>
+              <span className="text-[10px] font-mono opacity-80 px-1 py-0.2 bg-rose-500/20 rounded border border-rose-500/30">
+                {failedBadge}
+              </span>
+            </button>
+          </div>
+
+          {/* Copy Button */}
+          <button
+            type="button"
+            onClick={() => copyCode(`${endpoint}-res-${tab}`, activeContent)}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-zinc-300 hover:text-white bg-[#1a1238] hover:bg-[#251a50] border border-[#342468] transition-all active:scale-95 ml-2 shrink-0"
+          >
+            {isCopied ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400 text-[11px]">បានចម្លង</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3.5 h-3.5 text-zinc-400" />
+                <span className="text-[11px]">Copy</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* JSON Preview */}
+        <pre className={`p-4 font-mono text-xs overflow-x-auto leading-relaxed bg-[#070414] scrollbar-thin scrollbar-thumb-purple-900/50 ${
+          tab === 'success' ? 'text-emerald-300' : 'text-rose-300'
+        }`}>
+          <code>{activeContent}</code>
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+const RESPONSE_MOCKS = {
+  auth: {
+    success: `{
+  "status": "SUCCESS",
+  "user": {
+    "id": 1,
+    "telegram_id": "8821434690",
+    "username": "DemoUser",
+    "balance": 98.9,
+    "status": "active",
+    "role": "reseller",
+    "total_orders": 9,
+    "total_spent": 0.65,
+    "created_at": "2026-06-18 13:42:58",
+    "updated_at": "2026-09-30 10:30:15"
+  }
+}`,
+    failed: `{
+  "status": "FAILED",
+  "error": {
+    "code": 401,
+    "message": "Invalid API token or unauthorized request. Please check your Bearer token in the header."
+  }
+}`
+  },
+  checkId: {
+    success: `{
+  "status": "SUCCESS",
+  "data": {
+    "valid": true,
+    "username": "SakuraMaster99",
+    "region": "Cambodia (Asia)",
+    "game": "mobile-legends",
+    "userid": "1473883595",
+    "serverid": "14309",
+    "message": "Player ID verified successfully"
+  }
+}`,
+    failed: `{
+  "status": "FAILED",
+  "error": {
+    "code": 400,
+    "message": "Player ID 1473883595 or Server ID 14309 not found. Please verify the credentials."
+  }
+}`
+  },
+  orders: {
+    success: `{
+  "status": "SUCCESS",
+  "data": {
+    "order_id": "SK-20260930-8849",
+    "reseller_order_id": "ORD-20260930-001",
+    "game": "mobile-legends",
+    "product_code": "mlbb-86",
+    "amount": 1.45,
+    "currency": "USD",
+    "player_id": "1473883595 (14309)",
+    "status": "PROCESSING",
+    "created_at": "2026-09-30T13:40:00.000Z"
+  }
+}`,
+    failed: `{
+  "status": "FAILED",
+  "error": {
+    "code": 402,
+    "message": "Insufficient wallet balance. Current: $0.25, Required: $1.45. Please deposit funds via KHQR."
+  }
+}`
+  },
+  games: {
+    success: `{
+  "status": "SUCCESS",
+  "count": 4,
+  "data": [
+    {
+      "id": "mobile-legends",
+      "name": "Mobile Legends: Bang Bang",
+      "category": "MOBA",
+      "status": "ONLINE",
+      "server_required": true,
+      "products_count": 18
+    },
+    {
+      "id": "free-fire",
+      "name": "Free Fire",
+      "category": "Battle Royale",
+      "status": "ONLINE",
+      "server_required": false,
+      "products_count": 14
+    },
+    {
+      "id": "pubg-mobile",
+      "name": "PUBG Mobile",
+      "category": "Battle Royale",
+      "status": "ONLINE",
+      "server_required": false,
+      "products_count": 12
+    }
+  ]
+}`,
+    failed: `{
+  "status": "FAILED",
+  "error": {
+    "code": 503,
+    "message": "Game catalog service temporarily undergoing maintenance. Please retry in 1 minute."
+  }
+}`
+  }
+};
+
+export default function ApiDocsPage() {
+  const [activeLang, setActiveLang] = useState<SupportedLang>('curl');
+  const [copiedSection, setCopiedSection] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<string>('quickstart');
 
   const copyCode = (id: string, code: string) => {
     navigator.clipboard.writeText(code);
@@ -51,9 +349,9 @@ export default function ApiDocsPage() {
     switch (endpoint) {
       case 'auth':
         if (activeLang === 'curl') {
-          return `curl -X GET https://sakuraapi.lol/api/v1/reseller/me \\
-  -H "Authorization: Bearer sk_live_YOUR_API_KEY" \\
-  -H "Content-Type: application/json"`;
+          return `curl -X GET "https://sakuraapi.lol/api/v1/reseller/me" \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Accept: application/json"`;
         }
         if (activeLang === 'termux') {
           return `# ក្នុង Termux (សូមដំឡើង: pkg install curl jq -y)
@@ -61,7 +359,7 @@ API_KEY="sk_live_YOUR_API_KEY"
 
 curl -s -X GET "https://sakuraapi.lol/api/v1/reseller/me" \\
   -H "Authorization: Bearer $API_KEY" \\
-  -H "Content-Type: application/json" | jq .`;
+  -H "Accept: application/json" | jq .`;
         }
         if (activeLang === 'js') {
           return `const axios = require('axios');
@@ -69,7 +367,7 @@ curl -s -X GET "https://sakuraapi.lol/api/v1/reseller/me" \\
 const res = await axios.get('https://sakuraapi.lol/api/v1/reseller/me', {
   headers: {
     'Authorization': 'Bearer sk_live_YOUR_API_KEY',
-    'Content-Type': 'application/json'
+    'Accept': 'application/json'
   }
 });
 console.log(res.data);`;
@@ -80,7 +378,7 @@ $ch = curl_init("https://sakuraapi.lol/api/v1/reseller/me");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     "Authorization: Bearer sk_live_YOUR_API_KEY",
-    "Content-Type: application/json"
+    "Accept: application/json"
 ]);
 $response = curl_exec($ch);
 curl_close($ch);
@@ -90,14 +388,14 @@ echo $response;`;
 
 headers = {
     "Authorization": "Bearer sk_live_YOUR_API_KEY",
-    "Content-Type": "application/json"
+    "Accept": "application/json"
 }
 response = requests.get("https://sakuraapi.lol/api/v1/reseller/me", headers=headers)
 print(response.json())`;
 
       case 'check-id':
         if (activeLang === 'curl') {
-          return `curl -X POST https://sakuraapi.lol/api/v1/games/check-id \\
+          return `curl -X POST "https://sakuraapi.lol/api/v1/games/check-id" \\
   -H "Authorization: Bearer sk_live_YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -176,7 +474,7 @@ print(response.json())`;
 
       case 'create-order':
         if (activeLang === 'curl') {
-          return `curl -X POST https://sakuraapi.lol/api/v1/orders \\
+          return `curl -X POST "https://sakuraapi.lol/api/v1/orders" \\
   -H "Authorization: Bearer sk_live_YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -230,7 +528,7 @@ $data = [
     "product_code" => "mlbb-86",
     "userid" => "1473883595",
     "serverid" => "14309",
-    "reseller_order_id" => "ORD-20260930-001"
+    "reseller_order_id": "ORD-20260930-001"
 ];
 
 $ch = curl_init("https://sakuraapi.lol/api/v1/orders");
@@ -266,21 +564,26 @@ print(response.json())`;
 
       case 'get-games':
         if (activeLang === 'curl') {
-          return `curl -X GET https://sakuraapi.lol/api/v1/games \\
-  -H "Authorization: Bearer sk_live_YOUR_API_KEY"`;
+          return `curl -X GET "https://sakuraapi.lol/api/v1/games" \\
+  -H "Authorization: Bearer sk_live_YOUR_API_KEY" \\
+  -H "Accept: application/json"`;
         }
         if (activeLang === 'termux') {
           return `# ទាញយកបញ្ជីហ្គេម & ស្តុកទំនិញក្នុង Termux
 API_KEY="sk_live_YOUR_API_KEY"
 
 curl -s -X GET "https://sakuraapi.lol/api/v1/games" \\
-  -H "Authorization: Bearer $API_KEY" | jq .`;
+  -H "Authorization: Bearer $API_KEY" \\
+  -H "Accept: application/json" | jq .`;
         }
         if (activeLang === 'js') {
           return `const axios = require('axios');
 
 const res = await axios.get('https://sakuraapi.lol/api/v1/games', {
-  headers: { 'Authorization': 'Bearer sk_live_YOUR_API_KEY' }
+  headers: { 
+    'Authorization': 'Bearer sk_live_YOUR_API_KEY',
+    'Accept': 'application/json'
+  }
 });
 console.log(res.data);`;
         }
@@ -288,14 +591,21 @@ console.log(res.data);`;
           return `<?php
 $ch = curl_init("https://sakuraapi.lol/api/v1/games");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer sk_live_YOUR_API_KEY"]);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    "Authorization: Bearer sk_live_YOUR_API_KEY",
+    "Accept: application/json"
+]);
 $res = curl_exec($ch);
 curl_close($ch);
 echo $res;`;
         }
         return `import requests
 
-res = requests.get("https://sakuraapi.lol/api/v1/games", headers={"Authorization": "Bearer sk_live_YOUR_API_KEY"})
+headers = {
+    "Authorization": "Bearer sk_live_YOUR_API_KEY",
+    "Accept": "application/json"
+}
+res = requests.get("https://sakuraapi.lol/api/v1/games", headers=headers)
 print(res.json())`;
 
       default:
@@ -304,52 +614,41 @@ print(res.json())`;
   };
 
   const navLinks = [
-    { id: 'quickstart', label: '១. ចាប់ផ្ដើមរហ័ស (Overview)', icon: Sparkles },
-    { id: 'auth', label: '២. ការផ្ទៀងផ្ទាត់ (Authentication)', icon: KeyRound },
-    { id: 'check-id', label: '៣. ឆែក Player ID (Check ID)', icon: UserCheck },
-    { id: 'orders', label: '៤. បញ្ជាទិញ Top-up (Create Order)', icon: Receipt },
-    { id: 'games', label: '៥. បញ្ជីហ្គេម & ស្តុក (Games Catalog)', icon: Gamepad2 },
-    { id: 'errors', label: '៦. កូដកំហុស (Error Responses)', icon: AlertCircle },
+    { id: 'quickstart', label: 'ដំណើរការទូទៅ (How It Works)', icon: Zap },
+    { id: 'auth', label: 'ការផ្ទៀងផ្ទាត់សិទ្ធិ (Authentication)', icon: ShieldCheck },
+    { id: 'check-id', label: 'ឆែក ID ហ្គេម (Check Game ID)', icon: UserCheck },
+    { id: 'orders', label: 'បញ្ជាទិញពេជ្រ (Create Order)', icon: Receipt },
+    { id: 'games', label: 'បញ្ជីហ្គេម & ស្តុក (Games Catalog)', icon: Gamepad2 },
+    { id: 'errors', label: 'កូដកំហុសទូទៅ (Error Codes)', icon: AlertCircle }
   ];
 
   return (
-    <div className="min-h-screen bg-[#080510] text-[#f1f0f7] selection:bg-pink-500 selection:text-white relative">
+    <div className="min-h-screen bg-[#070414] text-white selection:bg-pink-500 selection:text-white pb-20">
       <Navigation />
 
-      {/* Top Ambient Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-purple-900/15 via-pink-600/5 to-transparent blur-3xl pointer-events-none" />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        {/* Hero Header */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#170e33] via-[#211247] to-[#120a2e] border border-[#31205c] p-6 sm:p-10 shadow-2xl animate-fade-in">
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative z-10">
-        {/* Header Hero Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[#251b46] animate-slide-up-1">
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-pink-500/10 border border-pink-500/25 text-pink-300 text-xs font-semibold shadow-inner">
-              <Code2 className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
-              <span>SakuraAPI Official REST API Documentation (v1.0)</span>
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-3 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-xs font-semibold">
+                <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                <span>SakuraAPI Official Documentation v1.2</span>
+              </div>
+              <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+                មគ្គុទ្ទេសក៍ភ្ជាប់ <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-400">REST API</span> សម្រាប់ Resellers
+              </h1>
+              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                ឯកសារបច្ចេកទេស និងកូដគំរូសម្រាប់ Developer យកទៅភ្ជាប់ប្រព័ន្ធស្វ័យប្រវត្តិជាមួយ Website, Telegram Mini App, Webhook ឬ Bot យ៉ាងងាយស្រួល និងរហ័ស។
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-              ឯកសារបច្ចេកទេស API សម្រាប់ Developer
-            </h1>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
-              មគ្គុទ្ទេសក៍សមាហរណកម្ម (Integration) សម្រាប់ភ្ជាប់ប្រព័ន្ធ Top-up ហ្គេមស្វ័យប្រវត្តិតាមរយៈ RESTful API ទៅកាន់ Website, Discord Bot, ឬ Telegram Bot របស់អ្នកយ៉ាងងាយស្រួល។
-            </p>
-          </div>
-
-          {/* Quick Action Buttons */}
-          <div className="flex items-center gap-2.5 self-start md:self-auto flex-wrap">
-            <a
-              href="https://sakuraapi.lol/api/docs"
-              target="_blank"
-              rel="noreferrer"
-              className="px-4 py-2.5 rounded-2xl bg-[#171032] hover:bg-[#251a50] border border-[#3b2a6e] text-purple-300 hover:text-white text-xs font-semibold transition-all shadow-md flex items-center gap-2 active:scale-95"
-            >
-              <span>Swagger UI (សាកល្បង Live)</span>
-              <ExternalLink className="w-3.5 h-3.5 text-pink-400" />
-            </a>
 
             <Link
               href="/api-access"
-              className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white font-semibold text-xs shadow-lg shadow-pink-600/30 transition-all flex items-center gap-1.5 active:scale-95"
+              className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white font-semibold text-xs shadow-lg shadow-pink-600/30 transition-all flex items-center gap-1.5 active:scale-95 shrink-0 self-start md:self-auto"
             >
               <KeyRound className="w-3.5 h-3.5" />
               <span>ទទួលយក API Key</span>
@@ -400,24 +699,25 @@ print(res.json())`;
           </div>
         </div>
 
-        {/* Language Tabs Control */}
+        {/* Global Language Quick Selector */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#120d26]/90 backdrop-blur-md border border-[#2b2052] rounded-2xl p-2.5 sm:px-4 shadow-xl animate-slide-up-2">
           <div className="flex items-center gap-2 text-xs text-zinc-300 font-medium">
             <Terminal className="w-4 h-4 text-pink-400" />
-            <span>ជ្រើសរើសភាសាកូដគំរូ (Code Language):</span>
+            <span>ជ្រើសរើសភាសាកូដគំរូទូទៅ (Default Language):</span>
           </div>
 
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             {[
-              { id: 'curl', label: 'cURL', badge: 'CLI / Shell' },
-              { id: 'termux', label: 'Termux', badge: 'Android CLI' },
-              { id: 'js', label: 'Node.js', badge: 'Axios / Fetch' },
-              { id: 'php', label: 'PHP', badge: 'cURL' },
-              { id: 'python', label: 'Python', badge: 'Requests' },
+              { id: 'curl', label: 'cURL' },
+              { id: 'termux', label: 'Termux' },
+              { id: 'python', label: 'Python' },
+              { id: 'php', label: 'PHP' },
+              { id: 'js', label: 'Node.js' }
             ].map((lang) => (
               <button
                 key={lang.id}
-                onClick={() => setActiveLang(lang.id as any)}
+                type="button"
+                onClick={() => setActiveLang(lang.id as SupportedLang)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 ${
                   activeLang === lang.id
                     ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-md shadow-pink-600/30 ring-1 ring-pink-400/50'
@@ -517,21 +817,26 @@ print(res.json())`;
                   <span className="text-[10px] text-zinc-500 uppercase font-sans font-bold">Standard Header</span>
                 </div>
 
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span className="font-semibold text-white">កូដគំរូពិនិត្យគណនី Reseller ({langLabels[activeLang]})៖</span>
-                    <button
-                      onClick={() => copyCode('auth', getExampleCode('auth'))}
-                      className="hover:text-white transition flex items-center gap-1 text-pink-400 text-xs font-medium"
-                    >
-                      {copiedSection === 'auth' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedSection === 'auth' ? 'បានចម្លង' : 'ចម្លងកូដ (Copy)'}</span>
-                    </button>
-                  </div>
-                  <pre className="bg-[#090614] border border-[#251b46] rounded-2xl p-4 font-mono text-xs text-purple-200 overflow-x-auto">
-                    {getExampleCode('auth')}
-                  </pre>
-                </div>
+                {/* Code Examples Box */}
+                <CodeBlockBox
+                  endpoint="auth"
+                  activeLang={activeLang}
+                  setActiveLang={setActiveLang}
+                  code={getExampleCode('auth')}
+                  copyCode={copyCode}
+                  isCopied={copiedSection === 'auth'}
+                />
+
+                {/* Example Response Box */}
+                <ResponseBlockBox
+                  endpoint="auth"
+                  successJson={RESPONSE_MOCKS.auth.success}
+                  failedJson={RESPONSE_MOCKS.auth.failed}
+                  successBadge="200 OK"
+                  failedBadge="401 UNAUTHORIZED"
+                  copyCode={copyCode}
+                  isCopied={copiedSection?.startsWith('auth-res') ?? false}
+                />
               </div>
             </section>
 
@@ -551,13 +856,13 @@ print(res.json())`;
                 </span>
               </div>
 
-              <div className="text-xs text-zinc-300 space-y-2 leading-relaxed">
+              <div className="text-xs text-zinc-300 space-y-3 leading-relaxed">
                 <p>
                   ប្រើប្រាស់ Endpoint នេះដើម្បីឆែកស្វែងរកឈ្មោះ In-game Name របស់តួអង្គហ្គេម មុនពេលអតិថិជនចុចទិញ ដើម្បីកាត់បន្ថយបញ្ហាក្នុងការវាយខុស ID ឬ Server ID។
                 </p>
 
                 {/* Parameters Table */}
-                <div className="pt-2">
+                <div className="pt-1">
                   <div className="text-xs font-bold text-white mb-2">ប៉ារ៉ាម៉ែត្រក្នុង Request Body (JSON)៖</div>
                   <div className="overflow-x-auto rounded-2xl border border-[#251b46]">
                     <table className="w-full text-left text-xs">
@@ -593,41 +898,26 @@ print(res.json())`;
                   </div>
                 </div>
 
-                {/* Code Sample */}
-                <div className="space-y-2 pt-3">
-                  <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span className="font-semibold text-white">កូដគំរូ Request ({langLabels[activeLang]})៖</span>
-                    <button
-                      onClick={() => copyCode('check-id', getExampleCode('check-id'))}
-                      className="hover:text-white transition flex items-center gap-1 text-pink-400 text-xs font-medium"
-                    >
-                      {copiedSection === 'check-id' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedSection === 'check-id' ? 'បានចម្លង' : 'ចម្លងកូដ (Copy)'}</span>
-                    </button>
-                  </div>
-                  <pre className="bg-[#090614] border border-[#251b46] rounded-2xl p-4 font-mono text-xs text-purple-200 overflow-x-auto">
-                    {getExampleCode('check-id')}
-                  </pre>
-                </div>
+                {/* Code Examples Box */}
+                <CodeBlockBox
+                  endpoint="check-id"
+                  activeLang={activeLang}
+                  setActiveLang={setActiveLang}
+                  code={getExampleCode('check-id')}
+                  copyCode={copyCode}
+                  isCopied={copiedSection === 'check-id'}
+                />
 
-                {/* Response Sample */}
-                <div className="space-y-2 pt-2">
-                  <span className="font-semibold text-emerald-400">ការឆ្លើយតបជោគជ័យ (HTTP 200 OK)៖</span>
-                  <pre className="bg-[#090614] border border-[#251b46] rounded-2xl p-4 font-mono text-xs text-emerald-400 overflow-x-auto">
-{`{
-  "success": true,
-  "data": {
-    "valid": true,
-    "username": "SakuraMaster99",
-    "region": "Cambodia (Asia)",
-    "gameTitle": "Mobile Legends: Bang Bang",
-    "userId": "1473883595",
-    "serverId": "14309",
-    "message": "Player ID verified successfully"
-  }
-}`}
-                  </pre>
-                </div>
+                {/* Example Response Box */}
+                <ResponseBlockBox
+                  endpoint="check-id"
+                  successJson={RESPONSE_MOCKS.checkId.success}
+                  failedJson={RESPONSE_MOCKS.checkId.failed}
+                  successBadge="200 OK"
+                  failedBadge="400 BAD REQUEST"
+                  copyCode={copyCode}
+                  isCopied={copiedSection?.startsWith('check-id-res') ?? false}
+                />
               </div>
             </section>
 
@@ -698,42 +988,26 @@ print(res.json())`;
                   </table>
                 </div>
 
-                {/* Code Sample */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span className="font-semibold text-white">កូដគំរូ Request ({langLabels[activeLang]})៖</span>
-                    <button
-                      onClick={() => copyCode('create-order', getExampleCode('create-order'))}
-                      className="hover:text-white transition flex items-center gap-1 text-pink-400 text-xs font-medium"
-                    >
-                      {copiedSection === 'create-order' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedSection === 'create-order' ? 'បានចម្លង' : 'ចម្លងកូដ (Copy)'}</span>
-                    </button>
-                  </div>
-                  <pre className="bg-[#090614] border border-[#251b46] rounded-2xl p-4 font-mono text-xs text-purple-200 overflow-x-auto">
-                    {getExampleCode('create-order')}
-                  </pre>
-                </div>
+                {/* Code Examples Box */}
+                <CodeBlockBox
+                  endpoint="create-order"
+                  activeLang={activeLang}
+                  setActiveLang={setActiveLang}
+                  code={getExampleCode('create-order')}
+                  copyCode={copyCode}
+                  isCopied={copiedSection === 'create-order'}
+                />
 
-                {/* Response Sample */}
-                <div className="space-y-2 pt-2">
-                  <span className="font-semibold text-emerald-400">ការឆ្លើយតបជោគជ័យ (HTTP 201 Created)៖</span>
-                  <pre className="bg-[#090614] border border-[#251b46] rounded-2xl p-4 font-mono text-xs text-emerald-400 overflow-x-auto">
-{`{
-  "success": true,
-  "data": {
-    "order_id": "SK-20260930-8849",
-    "reseller_order_id": "ORD-20260930-001",
-    "game": "Mobile Legends: Bang Bang",
-    "product": "86 Diamonds",
-    "amount": "1.45",
-    "currency": "USD",
-    "status": "SUCCESS",
-    "created_at": "2026-09-30T12:00:00.000Z"
-  }
-}`}
-                  </pre>
-                </div>
+                {/* Example Response Box */}
+                <ResponseBlockBox
+                  endpoint="orders"
+                  successJson={RESPONSE_MOCKS.orders.success}
+                  failedJson={RESPONSE_MOCKS.orders.failed}
+                  successBadge="201 CREATED"
+                  failedBadge="402 PAYMENT REQUIRED"
+                  copyCode={copyCode}
+                  isCopied={copiedSection?.startsWith('orders-res') ?? false}
+                />
               </div>
             </section>
 
@@ -758,21 +1032,26 @@ print(res.json())`;
                   ទាញយកបញ្ជីហ្គេម និងកញ្ចប់ពេជ្រទាំងអស់ដែលកំពុងដំណើរការ រួមទាំងតម្លៃ Reseller Cost ដើម្បីដាក់បញ្ចូលលើ Website ឬ Telegram Bot របស់អ្នកដោយស្វ័យប្រវត្តិ។
                 </p>
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span className="font-semibold text-white">កូដគំរូ Request ({langLabels[activeLang]})៖</span>
-                    <button
-                      onClick={() => copyCode('get-games', getExampleCode('get-games'))}
-                      className="hover:text-white transition flex items-center gap-1 text-pink-400 text-xs font-medium"
-                    >
-                      {copiedSection === 'get-games' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedSection === 'get-games' ? 'បានចម្លង' : 'ចម្លងកូដ (Copy)'}</span>
-                    </button>
-                  </div>
-                  <pre className="bg-[#090614] border border-[#251b46] rounded-2xl p-4 font-mono text-xs text-purple-200 overflow-x-auto">
-                    {getExampleCode('get-games')}
-                  </pre>
-                </div>
+                {/* Code Examples Box */}
+                <CodeBlockBox
+                  endpoint="get-games"
+                  activeLang={activeLang}
+                  setActiveLang={setActiveLang}
+                  code={getExampleCode('get-games')}
+                  copyCode={copyCode}
+                  isCopied={copiedSection === 'get-games'}
+                />
+
+                {/* Example Response Box */}
+                <ResponseBlockBox
+                  endpoint="games"
+                  successJson={RESPONSE_MOCKS.games.success}
+                  failedJson={RESPONSE_MOCKS.games.failed}
+                  successBadge="200 OK"
+                  failedBadge="503 MAINTENANCE"
+                  copyCode={copyCode}
+                  isCopied={copiedSection?.startsWith('games-res') ?? false}
+                />
               </div>
             </section>
 
