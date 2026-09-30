@@ -699,37 +699,6 @@ print(res.json())`;
           </div>
         </div>
 
-        {/* Global Language Quick Selector */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#120d26]/90 backdrop-blur-md border border-[#2b2052] rounded-2xl p-2.5 sm:px-4 shadow-xl animate-slide-up-2">
-          <div className="flex items-center gap-2 text-xs text-zinc-300 font-medium">
-            <Terminal className="w-4 h-4 text-pink-400" />
-            <span>ជ្រើសរើសភាសាកូដគំរូទូទៅ (Default Language):</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-            {[
-              { id: 'curl', label: 'cURL' },
-              { id: 'termux', label: 'Termux' },
-              { id: 'python', label: 'Python' },
-              { id: 'php', label: 'PHP' },
-              { id: 'js', label: 'Node.js' }
-            ].map((lang) => (
-              <button
-                key={lang.id}
-                type="button"
-                onClick={() => setActiveLang(lang.id as SupportedLang)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 ${
-                  activeLang === lang.id
-                    ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-md shadow-pink-600/30 ring-1 ring-pink-400/50'
-                    : 'bg-[#181135] text-zinc-400 hover:text-white hover:bg-[#23184d]'
-                }`}
-              >
-                <span>{lang.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Main Content Layout (Sidebar & Endpoints) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-slide-up-3">
           {/* Left Quick Navigation (Sticky on Desktop) */}
