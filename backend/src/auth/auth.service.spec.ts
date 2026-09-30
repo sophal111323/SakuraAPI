@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { Role, UserStatus } from '@prisma/client';
@@ -15,6 +16,7 @@ describe('AuthService', () => {
     prisma = {
       user: {
         findUnique: vi.fn(),
+        findFirst: vi.fn(),
       },
       reseller: {
         findUnique: vi.fn(),
@@ -31,6 +33,12 @@ describe('AuthService', () => {
         AuthService,
         { provide: PrismaService, useValue: prisma },
         { provide: JwtService, useValue: jwtService },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: vi.fn().mockReturnValue('mock-jwt-secret'),
+          },
+        },
       ],
     }).compile();
 
@@ -43,7 +51,7 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should throw UnauthorizedException if user is not found', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.findFirst.mockResolvedValue(null);
 
       await expect(
         service.login({ email: 'unknown@sakuraapi.com', password: 'Password123!' }),
@@ -52,7 +60,7 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException if password does not match', async () => {
       const hash = await bcrypt.hash('CorrectPassword123!', 10);
-      prisma.user.findUnique.mockResolvedValue({
+      prisma.user.findFirst.mockResolvedValue({
         id: 'usr-1',
         email: 'user@sakuraapi.com',
         passwordHash: hash,
@@ -68,7 +76,7 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException if account is suspended', async () => {
       const hash = await bcrypt.hash('CorrectPassword123!', 10);
-      prisma.user.findUnique.mockResolvedValue({
+      prisma.user.findFirst.mockResolvedValue({
         id: 'usr-1',
         email: 'user@sakuraapi.com',
         passwordHash: hash,
@@ -84,7 +92,7 @@ describe('AuthService', () => {
 
     it('should return accessToken and user data on valid login', async () => {
       const hash = await bcrypt.hash('Secret123!', 10);
-      prisma.user.findUnique.mockResolvedValue({
+      prisma.user.findFirst.mockResolvedValue({
         id: 'usr-1',
         email: 'user@sakuraapi.com',
         passwordHash: hash,
@@ -108,19 +116,20 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('should throw ConflictException if email is already taken', async () => {
-      prisma.user.findUnique.mockResolvedValue({ id: 'usr-existing' });
+      prisma.user.findFirst.mockResolvedValue({ id: 'usr-existing' });
 
       await expect(
         service.register({
           email: 'existing@sakuraapi.com',
           password: 'Password123!',
           name: 'Jane Doe',
+          telegram: '@janedoe',
         }),
       ).rejects.toThrow(ConflictException);
     });
 
     it('should create new user and reseller in transaction', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.findFirst.mockResolvedValue(null);
       prisma.$transaction.mockImplementation(async (callback: any) => {
         const tx = {
           user: {
@@ -149,6 +158,7 @@ describe('AuthService', () => {
         password: 'Password123!',
         name: 'New Reseller',
         companyName: 'New Ventures',
+        telegram: '@newreseller',
       });
 
       expect(res.accessToken).toBe('mock-jwt-token');

@@ -10,6 +10,7 @@ export interface CheckIdResult {
   userId: string;
   serverId?: string | null;
   message?: string;
+  developer?: string;
   raw?: any;
 }
 
@@ -67,6 +68,21 @@ export class Bay2GameService {
       'valorant': 'valorant',
     };
     return map[c] || c;
+  }
+
+  /**
+   * Sanitizes upstream response raw object to enforce SakuraAPI branding
+   */
+  private sanitizeRaw(raw: any): any {
+    if (!raw || typeof raw !== 'object') return raw;
+    const sanitized: Record<string, any> = { ...raw };
+    sanitized.developer = 'SakuraAPI';
+    for (const key of Object.keys(sanitized)) {
+      if (typeof sanitized[key] === 'string' && /bay2game/i.test(sanitized[key])) {
+        sanitized[key] = sanitized[key].replace(/bay2game(\s*dev)?/gi, 'SakuraAPI');
+      }
+    }
+    return sanitized;
   }
 
   /**
@@ -129,7 +145,8 @@ export class Bay2GameService {
               userId: cleanUserId,
               serverId: cleanServerId || null,
               message: sgJson.message || 'Player ID verified successfully (SG server)',
-              raw: sgJson,
+              developer: 'SakuraAPI',
+              raw: this.sanitizeRaw(sgJson),
             };
           }
         } catch {
@@ -146,7 +163,8 @@ export class Bay2GameService {
         userId: cleanUserId,
         serverId: cleanServerId || null,
         message: json.message || (isValid ? 'Player ID verified successfully' : 'Player ID not found or invalid'),
-        raw: json,
+        developer: 'SakuraAPI',
+        raw: this.sanitizeRaw(json),
       };
     } catch (err: any) {
       clearTimeout(timeout);

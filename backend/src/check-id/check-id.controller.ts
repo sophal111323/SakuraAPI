@@ -20,7 +20,7 @@ import { CheckIdDto, CheckIdQueryDto } from './dto/check-id.dto';
 import { ResellerApiGuard } from '../auth/guards/reseller-api.guard';
 import { RateLimitGuard } from '../common/rate-limit/rate-limit.guard';
 
-@ApiTags('Game ID Validation (Bay2Game)')
+@ApiTags('Game ID Validation')
 @Controller()
 @UseGuards(ResellerApiGuard, RateLimitGuard)
 @ApiBearerAuth('api-key')
