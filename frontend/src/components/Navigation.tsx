@@ -65,18 +65,17 @@ export default function Navigation() {
         <div className="flex items-center justify-between h-16 gap-2">
           {/* Logo */}
           <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-            <Link href="/" className="flex items-center space-x-2 group shrink-0">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl p-0.5 bg-gradient-to-tr from-pink-500 via-purple-500 to-sky-400 shadow-lg shadow-purple-600/30 overflow-hidden flex items-center justify-center bg-[#0e0a1f] shrink-0">
-                <img src="/logo.png" alt="SakuraAPI Logo" className="w-full h-full object-contain" />
-              </div>
-              <span className="font-bold text-base sm:text-lg tracking-tight text-white flex items-center gap-1 whitespace-nowrap">
-                Sakura<span className="text-pink-400">API</span>
-                {isAdmin && (
-                  <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                    Admin
-                  </span>
-                )}
-              </span>
+            <Link href="/" className="flex items-center gap-2 group shrink-0">
+              <img
+                src="/logo.png"
+                alt="SakuraAPI"
+                className="h-8 sm:h-9 w-auto object-contain filter drop-shadow-[0_0_12px_rgba(236,72,153,0.35)] transition-transform duration-200 group-hover:scale-105"
+              />
+              {isAdmin && (
+                <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
+                  Admin
+                </span>
+              )}
             </Link>
 
             {/* Desktop Nav Links */}

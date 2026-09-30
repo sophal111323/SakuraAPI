@@ -34,11 +34,11 @@ export default function AuthGuard({
     return (
       <div className="min-h-screen bg-[#080510] text-[#f1f0f7] flex flex-col items-center justify-center space-y-4 px-4 selection:bg-pink-500 selection:text-white">
         <div className="relative">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-500 via-purple-500 to-sky-400 p-0.5 shadow-2xl shadow-purple-600/40 animate-pulse">
-            <div className="w-full h-full bg-[#0e0a1f] rounded-[14px] flex items-center justify-center p-2.5">
-              <img src="/logo.png" alt="SakuraAPI" className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(236,72,153,0.5)]" />
-            </div>
-          </div>
+          <img
+            src="/logo.png"
+            alt="SakuraAPI"
+            className="h-12 sm:h-14 w-auto object-contain filter drop-shadow-[0_0_16px_rgba(236,72,153,0.5)] animate-pulse"
+          />
         </div>
         <div className="flex items-center gap-2.5 text-xs text-purple-300 font-medium">
           <Loader2 className="w-4 h-4 animate-spin text-pink-400" />

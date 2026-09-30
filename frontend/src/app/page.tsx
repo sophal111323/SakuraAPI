@@ -129,10 +129,8 @@ export default function Home() {
         {user && (
           <div className="bg-gradient-to-r from-purple-950/50 via-[#181135] to-[#120d26] border border-purple-500/30 rounded-3xl p-5 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 backdrop-blur-md">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500 to-purple-600 p-0.5">
-                <div className="w-full h-full bg-[#0e0a1f] rounded-[14px] flex items-center justify-center">
-                  <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
-                </div>
+              <div className="h-11 px-3 rounded-2xl bg-gradient-to-tr from-pink-500/20 to-purple-600/20 border border-purple-500/30 flex items-center justify-center">
+                <img src="/logo.png" alt="SakuraAPI" className="h-7 w-auto object-contain" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -433,16 +431,13 @@ export default function Home() {
       <footer className="border-t border-[#221c3b] bg-[#070510] mt-24 py-12 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-2xl p-0.5 bg-gradient-to-tr from-pink-500 via-purple-500 to-sky-400 overflow-hidden bg-[#0e0a1f]">
-                <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
-              </div>
-              <div>
-                <span className="font-extrabold text-lg text-white">
-                  Sakura<span className="text-pink-400">API</span>
-                </span>
-                <p className="text-[11px] text-zinc-500">Automated Game Top-up Reseller Platform</p>
-              </div>
+            <div className="space-y-1.5 text-center sm:text-left">
+              <img
+                src="/logo.png"
+                alt="SakuraAPI"
+                className="h-9 sm:h-10 w-auto object-contain filter drop-shadow-[0_0_12px_rgba(236,72,153,0.3)] mx-auto sm:mx-0"
+              />
+              <p className="text-[11px] text-zinc-400">Automated Game Top-up Reseller Platform</p>
             </div>
 
             <div className="flex items-center gap-6 text-xs text-zinc-400">
