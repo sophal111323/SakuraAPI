@@ -265,11 +265,14 @@ export class AuthService {
   }
 
   async telegramOidcLogin(code: string, redirectUri: string) {
-    const clientId =
+    const rawClientId =
       this.configService.get<string>('TELEGRAM_CLIENT_ID') || '8953849304';
-    const clientSecret =
+    const rawClientSecret =
       this.configService.get<string>('TELEGRAM_CLIENT_SECRET') ||
       '5DBN0QMl3ic5Vv3P8znRCHbkfCxvYVNicMWvpmoC9JNdf3HxyTNaoQ';
+
+    const clientId = rawClientId.replace(/['"\\\s]/g, '').trim();
+    const clientSecret = rawClientSecret.replace(/['"\\\s]/g, '').trim();
 
     const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
@@ -281,13 +284,16 @@ export class AuthService {
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
-        code,
-        redirect_uri: redirectUri,
+        code: code.trim(),
+        redirect_uri: redirectUri.trim(),
+        client_id: clientId,
+        client_secret: clientSecret,
       }),
     });
 
     const data = await res.json();
     if (!res.ok || data.error || !data.id_token) {
+      console.error('Telegram OIDC error response:', data);
       throw new UnauthorizedException(
         data.error_description || data.error || 'Failed to exchange Telegram authorization code'
       );
