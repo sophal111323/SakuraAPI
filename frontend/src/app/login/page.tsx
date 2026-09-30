@@ -1,36 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
-import { ArrowRight, AlertCircle, Loader2, Sparkles, Send, Lock, User as UserIcon, ChevronRight } from 'lucide-react';
+import { Sparkles, ChevronRight, Zap, ShieldCheck, Headphones, KeyRound } from 'lucide-react';
 import TelegramLoginWidget from '@/components/TelegramLoginWidget';
 
 export default function LoginPage() {
-  const router = useRouter();
-  const { login } = useAuth();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSubmitting(true);
-
-    const res = await login(email, password);
-    setSubmitting(false);
-
-    if (res.success) {
-      router.push('/');
-    } else {
-      setError(res.error || 'ការចូលគណនីមិនជោគជ័យ សូមពិនិត្យព័ត៌មានឡើងវិញ');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#090714] text-[#f1f0f7] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden selection:bg-pink-500 selection:text-white">
       {/* Background Neon Gradients & Ambient Glow */}
@@ -65,95 +40,63 @@ export default function LoginPage() {
               ចូលគណនីរបស់អ្នក
             </h1>
             <p className="text-xs sm:text-sm text-zinc-400 max-w-xs mx-auto leading-relaxed">
-              ភ្ជាប់ជាមួយ Telegram ផ្ទាល់ខ្លួន ឬចូលគណនីជាមួយលេខសម្ងាត់សម្រាប់ Admin
+              ភ្ជាប់ជាមួយ Telegram ផ្ទាល់ខ្លួន ដើម្បីចូលប្រើប្រាស់ផ្ទាំងគ្រប់គ្រង Reseller Dashboard ភ្លាមៗ
             </p>
           </div>
         </div>
 
-        {/* Login Card */}
+        {/* Telegram-Only Login Card */}
         <div className="bg-[#120d26]/90 backdrop-blur-xl border border-[#2d2256] rounded-3xl p-6 sm:p-8 shadow-2xl shadow-purple-950/50 space-y-6 relative overflow-hidden">
           {/* Subtle Accent Glow */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 blur-3xl pointer-events-none" />
 
-          {/* Telegram 1-Click Fast Login Section */}
-          <div className="bg-[#171131]/90 border border-[#32255c] rounded-2xl p-4 text-center space-y-2.5">
-            <div className="text-xs font-semibold text-white flex items-center justify-center gap-1.5">
-              <Send className="w-3.5 h-3.5 text-sky-400" />
-              <span>ចូលគណនីលឿនរហ័សជាមួយ Telegram</span>
+          {/* Quick Advantage Badges */}
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="p-3 rounded-2xl bg-[#171131]/80 border border-[#2c2152] space-y-1 hover:border-pink-500/30 transition">
+              <div className="w-7 h-7 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                <Zap className="w-4 h-4 text-amber-400" />
+              </div>
+              <div className="text-xs font-semibold text-white">ចូលប្រើ 1-Click</div>
+              <div className="text-[10px] text-zinc-400 leading-normal">
+                មិនចាំបាច់វាយលេខសម្ងាត់ ចូលភ្លាមៗ
+              </div>
             </div>
-            <p className="text-[11px] text-zinc-400">
-              ចុចតែមួយ Click ចូលប្រើប្រាស់ Dashboard បានភ្លាមៗដោយស្វ័យប្រវត្តិ
-            </p>
-            <div className="pt-1">
-              <TelegramLoginWidget buttonText="ចូលគណនីតាមរយៈ Telegram" />
+
+            <div className="p-3 rounded-2xl bg-[#171131]/80 border border-[#2c2152] space-y-1 hover:border-pink-500/30 transition">
+              <div className="w-7 h-7 rounded-xl bg-sky-500/10 flex items-center justify-center">
+                <ShieldCheck className="w-4 h-4 text-sky-400" />
+              </div>
+              <div className="text-xs font-semibold text-white">សុវត្ថិភាព 100%</div>
+              <div className="text-[10px] text-zinc-400 leading-normal">
+                ផ្ទៀងផ្ទាត់ផ្ទាល់តាម Telegram OAuth
+              </div>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-[#171131]/80 border border-[#2c2152] space-y-1 hover:border-pink-500/30 transition">
+              <div className="w-7 h-7 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <KeyRound className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div className="text-xs font-semibold text-white">គ្រប់គ្រង API Key</div>
+              <div className="text-[10px] text-zinc-400 leading-normal">
+                ពិនិត្យមើល និង Reset API Key គ្រប់ពេល
+              </div>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-[#171131]/80 border border-[#2c2152] space-y-1 hover:border-pink-500/30 transition">
+              <div className="w-7 h-7 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                <Headphones className="w-4 h-4 text-purple-400" />
+              </div>
+              <div className="text-xs font-semibold text-white">ការគាំទ្រ 24/7</div>
+              <div className="text-[10px] text-zinc-400 leading-normal">
+                ជំនួយការរហ័សតាមប្រព័ន្ធ Telegram
+              </div>
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="relative flex items-center justify-center my-2">
-            <div className="border-t border-[#231a44] w-full" />
-            <span className="bg-[#120d26] px-3 text-[10px] text-zinc-500 uppercase tracking-wider font-semibold absolute">
-              ឬចូលដោយប្រើ Email & Password
-            </span>
+          {/* Telegram Auth Component */}
+          <div className="pt-2">
+            <TelegramLoginWidget buttonText="ចូលគណនីតាមរយៈ Telegram" />
           </div>
-
-          {error && (
-            <div className="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* Manual Credentials Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                <UserIcon className="w-3.5 h-3.5 text-purple-400" />
-                <span>Email ឬ គណនី Telegram (@username)</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="បញ្ចូល Email ឬ @username របស់អ្នក"
-                className="w-full px-4 py-2.5 rounded-2xl bg-[#090714] border border-[#2b2050] text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-pink-500 transition"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-pink-400" />
-                <span>លេខសម្ងាត់ (Password)</span>
-              </label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="បញ្ចូលលេខសម្ងាត់របស់អ្នក"
-                className="w-full px-4 py-2.5 rounded-2xl bg-[#090714] border border-[#2b2050] text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-pink-500 transition"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white font-semibold text-sm transition-all duration-300 shadow-xl shadow-purple-600/25 flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>កំពុងផ្ទៀងផ្ទាត់...</span>
-                </>
-              ) : (
-                <>
-                  <span>ចូលគណនី</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
 
           {/* Sign Up Link */}
           <div className="pt-4 border-t border-[#231a44] text-center text-xs text-zinc-400">
