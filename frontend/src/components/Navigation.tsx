@@ -28,6 +28,12 @@ export default function Navigation() {
 
   const isAdmin = user?.role === 'ADMIN';
 
+  const guestNavItems = [
+    { label: 'Overview', href: '/', icon: LayoutDashboard, exact: true },
+    { label: 'Categories', href: '/categories', icon: Gamepad2 },
+    { label: 'API Docs', href: '/docs', icon: BookOpen },
+  ];
+
   const resellerNavItems = [
     { label: 'Overview', href: '/', icon: LayoutDashboard, exact: true },
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -46,7 +52,7 @@ export default function Navigation() {
     { label: 'Reseller Portal', href: '/dashboard', icon: LayoutDashboard },
   ];
 
-  const navItems = isAdmin ? adminNavItems : resellerNavItems;
+  const navItems = isAdmin ? adminNavItems : user ? resellerNavItems : guestNavItems;
 
   const isActive = (item: { href: string; exact?: boolean }) => {
     if (item.exact) return pathname === item.href;

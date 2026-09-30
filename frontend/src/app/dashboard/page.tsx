@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
+import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/context/AuthContext';
 import {
   Wallet,
@@ -283,8 +284,9 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0914] text-[#f1f0f7] selection:bg-purple-600 selection:text-white">
-      <Navigation />
+    <AuthGuard redirectTo="/register">
+      <div className="min-h-screen bg-[#0b0914] text-[#f1f0f7] selection:bg-purple-600 selection:text-white">
+        <Navigation />
 
       {/* Top Ambient Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-80 bg-gradient-to-b from-purple-900/15 via-purple-600/5 to-transparent blur-3xl pointer-events-none" />
@@ -914,5 +916,6 @@ export default function DashboardPage() {
         )}
       </main>
     </div>
+    </AuthGuard>
   );
 }

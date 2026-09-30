@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
+import AuthGuard from '@/components/AuthGuard';
 import { useAuth } from '@/context/AuthContext';
 import {
   Key,
@@ -164,8 +165,9 @@ export default function ApiAccessPage() {
   }, [token]);
 
   return (
-    <div className="min-h-screen bg-[#0b0914] text-[#f1f0f7] selection:bg-purple-600 selection:text-white">
-      <Navigation />
+    <AuthGuard redirectTo="/register">
+      <div className="min-h-screen bg-[#0b0914] text-[#f1f0f7] selection:bg-purple-600 selection:text-white">
+        <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
@@ -494,5 +496,6 @@ export default function ApiAccessPage() {
         )}
       </main>
     </div>
+    </AuthGuard>
   );
 }
