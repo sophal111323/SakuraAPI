@@ -292,8 +292,8 @@ export default function DashboardPage() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-80 bg-gradient-to-b from-purple-900/15 via-purple-600/5 to-transparent blur-3xl pointer-events-none" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative">
-        {/* Dashboard Title & Actions */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 animate-slide-up-1">
+        {/* Dashboard Title */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 animate-slide-up-1">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
@@ -310,43 +310,6 @@ export default function DashboardPage() {
             <p className="text-xs text-zinc-400">
               តាមដានសមតុល្យកាបូបទឹកប្រាក់ ការបញ្ជាទិញស្វ័យប្រវត្ត និងការប្រើប្រាស់ API ជាក់ស្តែង។
             </p>
-          </div>
-
-          {/* Redesigned Action Bar */}
-          <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-            <button
-              onClick={() => {
-                setCheckIdModalOpen(true);
-                setIdCheckResult(null);
-              }}
-              className="px-3.5 py-2 rounded-xl bg-[#171032] hover:bg-[#251b50] border border-[#3c2a74] text-purple-200 hover:text-white text-xs font-semibold transition-all duration-200 shadow-sm flex items-center gap-2 whitespace-nowrap active:scale-95"
-            >
-              <UserCheck className="w-4 h-4 text-purple-400" />
-              <span>ឆែកឈ្មោះ Player ID</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setOrderModalOpen(true);
-                setOrderSuccess(null);
-                setOrderError(null);
-                setIdCheckResult(null);
-              }}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white text-xs font-bold transition-all duration-200 shadow-lg shadow-pink-600/30 flex items-center gap-2 whitespace-nowrap active:scale-95"
-            >
-              <PlusCircle className="w-4 h-4 text-white" />
-              <span>បញ្ជាទិញ Top-up</span>
-            </button>
-
-            <button
-              onClick={fetchDashboard}
-              disabled={loading}
-              title="ទាញយកទិន្នន័យថ្មី"
-              className="px-3 py-2 rounded-xl bg-[#130d28] hover:bg-[#201642] border border-[#2f2258] text-xs font-medium text-zinc-300 hover:text-white flex items-center gap-1.5 transition-all duration-200 shadow-sm disabled:opacity-50 active:scale-95 whitespace-nowrap"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-pink-400' : 'text-zinc-400'}`} />
-              <span className="hidden sm:inline">Refresh</span>
-            </button>
           </div>
         </div>
 
