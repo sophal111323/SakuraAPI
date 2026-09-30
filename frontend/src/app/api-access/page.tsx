@@ -32,7 +32,7 @@ interface ApiKeyItem {
 }
 
 export default function ApiAccessPage() {
-  const { token, user, login, refreshProfile } = useAuth();
+  const { token, user, refreshProfile } = useAuth();
   const [keys, setKeys] = useState<ApiKeyItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -42,7 +42,6 @@ export default function ApiAccessPage() {
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loggingIn, setLoggingIn] = useState(false);
 
   const fetchKeys = async (silent = false) => {
     if (!silent) setLoading(true);
@@ -84,23 +83,6 @@ export default function ApiAccessPage() {
     }
   };
 
-  const handleQuickDemoLogin = async () => {
-    setLoggingIn(true);
-    setError(null);
-    try {
-      const res = await login('reseller@sakuraapi.com', 'Reseller@Sakura123!');
-      if (res.success) {
-        await fetchKeys();
-      } else {
-        setError(res.error || 'Failed to sign in as Demo Reseller');
-      }
-    } catch (e: any) {
-      setError(e.message || 'Login error');
-    } finally {
-      setLoggingIn(false);
-    }
-  };
-
   const handleCreateKey = async (e: React.FormEvent) => {
     e.preventDefault();
     setGenerating(true);
@@ -108,16 +90,10 @@ export default function ApiAccessPage() {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
-      let authToken = token || (typeof window !== 'undefined' ? localStorage.getItem('sakura_token') : null);
+      const authToken = token || (typeof window !== 'undefined' ? localStorage.getItem('sakura_token') : null);
 
-      // If guest/unauthenticated, automatically sign in as Demo Reseller first
       if (!authToken) {
-        const loginRes = await login('reseller@sakuraapi.com', 'Reseller@Sakura123!');
-        if (loginRes.success) {
-          authToken = typeof window !== 'undefined' ? localStorage.getItem('sakura_token') : null;
-        } else {
-          throw new Error('Please sign in or click "Instant Demo Sign In" to generate API keys.');
-        }
+        throw new Error('សូមចូលគណនីតាម Telegram ជាមុនសិន ដើម្បីបង្កើត API Key។');
       }
 
       const res = await fetch(`${apiUrl}/api-keys`, {
@@ -229,18 +205,17 @@ export default function ApiAccessPage() {
                 <Zap className="w-5 h-5 text-purple-400" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-white">Currently Viewing in Guest Mode</h3>
-                <p className="text-[11px] text-zinc-400">Sign in to generate real SHA-256 Bearer API keys linked directly to your reseller account.</p>
+                <h3 className="text-xs font-bold text-white">ចូលគណនីដើម្បីគ្រប់គ្រង API Key</h3>
+                <p className="text-[11px] text-zinc-400">សូមចូលគណនីតាម Telegram ដើម្បីបង្កើត SHA-256 Bearer API Key ផ្ទាល់ខ្លួន។</p>
               </div>
             </div>
-            <button
-              onClick={handleQuickDemoLogin}
-              disabled={loggingIn}
-              className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/30 transition flex items-center gap-1.5 shrink-0 disabled:opacity-50"
+            <Link
+              href="/login"
+              className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/30 transition flex items-center gap-1.5 shrink-0"
             >
-              {loggingIn ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}
-              <span>{loggingIn ? 'Signing in...' : '⚡ One-Click Sign In as Demo Reseller'}</span>
-            </button>
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>ចូលគណនីតាម Telegram</span>
+            </Link>
           </div>
         )}
 
@@ -439,16 +414,14 @@ export default function ApiAccessPage() {
                   {!user && (
                     <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-between gap-2">
                       <div className="text-[11px] text-purple-300">
-                        <span className="font-semibold text-white">Guest Mode:</span> Generating a key will automatically create it for Demo Reseller.
+                        សូមចូលគណនីតាម Telegram ដើម្បីទទួលបាន API Key។
                       </div>
-                      <button
-                        type="button"
-                        onClick={handleQuickDemoLogin}
-                        disabled={loggingIn}
+                      <Link
+                        href="/login"
                         className="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-medium transition shrink-0"
                       >
-                        {loggingIn ? 'Signing in...' : 'Sign In First'}
-                      </button>
+                        ចូលគណនី
+                      </Link>
                     </div>
                   )}
 

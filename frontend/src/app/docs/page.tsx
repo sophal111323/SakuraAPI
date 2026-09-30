@@ -30,7 +30,7 @@ export default function ApiDocsPage() {
     switch (endpoint) {
       case 'create-order':
         if (activeLang === 'curl') {
-          return `curl -X POST https://api.sakuraapi.com/api/v1/orders \\
+          return `curl -X POST https://sakuraapi.lol/api/v1/orders \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -45,7 +45,7 @@ export default function ApiDocsPage() {
           return `const axios = require('axios');
 
 async function createOrder() {
-  const response = await axios.post('https://api.sakuraapi.com/api/v1/orders', {
+  const response = await axios.post('https://sakuraapi.lol/api/v1/orders', {
     game: 'mobile-legends',
     product: 'mlbb-86',
     player_id: '12345678',
@@ -72,7 +72,7 @@ $data = [
     "reseller_order_id" => "ORDER-1001"
 ];
 
-$ch = curl_init("https://api.sakuraapi.com/api/v1/orders");
+$ch = curl_init("https://sakuraapi.lol/api/v1/orders");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
@@ -87,7 +87,7 @@ echo $response;`;
         }
         return `import requests
 
-url = "https://api.sakuraapi.com/api/v1/orders"
+url = "https://sakuraapi.lol/api/v1/orders"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY",
     "Content-Type": "application/json"
@@ -105,31 +105,31 @@ print(response.json())`;
 
       case 'get-games':
         if (activeLang === 'curl') {
-          return `curl -X GET https://api.sakuraapi.com/api/v1/games \\
+          return `curl -X GET https://sakuraapi.lol/api/v1/games \\
   -H "Authorization: Bearer YOUR_API_KEY"`;
         }
         if (activeLang === 'js') {
           return `const axios = require('axios');
-const res = await axios.get('https://api.sakuraapi.com/api/v1/games', {
+const res = await axios.get('https://sakuraapi.lol/api/v1/games', {
   headers: { 'Authorization': 'Bearer YOUR_API_KEY' }
 });
 console.log(res.data);`;
         }
         if (activeLang === 'php') {
           return `<?php
-$ch = curl_init("https://api.sakuraapi.com/api/v1/games");
+$ch = curl_init("https://sakuraapi.lol/api/v1/games");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer YOUR_API_KEY"]);
 $res = curl_exec($ch);
 echo $res;`;
         }
         return `import requests
-res = requests.get("https://api.sakuraapi.com/api/v1/games", headers={"Authorization": "Bearer YOUR_API_KEY"})
+res = requests.get("https://sakuraapi.lol/api/v1/games", headers={"Authorization": "Bearer YOUR_API_KEY"})
 print(res.json())`;
 
       case 'check-id':
         if (activeLang === 'curl') {
-          return `curl -X POST https://api.sakuraapi.com/api/v1/games/check-id \\
+          return `curl -X POST https://sakuraapi.lol/api/v1/games/check-id \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -142,7 +142,7 @@ print(res.json())`;
           return `const axios = require('axios');
 
 async function checkGameId() {
-  const response = await axios.post('https://api.sakuraapi.com/api/v1/games/check-id', {
+  const response = await axios.post('https://sakuraapi.lol/api/v1/games/check-id', {
     game: 'mobile-legends',
     userid: '12345678',
     serverid: '1234'
@@ -165,7 +165,7 @@ $data = [
     "serverid" => "1234"
 ];
 
-$ch = curl_init("https://api.sakuraapi.com/api/v1/games/check-id");
+$ch = curl_init("https://sakuraapi.lol/api/v1/games/check-id");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
@@ -180,7 +180,7 @@ echo $response;`;
         }
         return `import requests
 
-url = "https://api.sakuraapi.com/api/v1/games/check-id"
+url = "https://sakuraapi.lol/api/v1/games/check-id"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY",
     "Content-Type": "application/json"
@@ -216,7 +216,7 @@ print(response.json())`;
           </div>
 
           <a
-            href="http://localhost:4000/api/docs"
+            href="https://sakuraapi.lol/api/docs"
             target="_blank"
             rel="noreferrer"
             className="self-start sm:self-auto px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition shadow-md shadow-purple-600/30 flex items-center gap-1.5"

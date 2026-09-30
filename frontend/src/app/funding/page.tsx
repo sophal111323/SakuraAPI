@@ -15,7 +15,13 @@ import {
   Clock,
   XCircle,
   ShieldCheck,
-  CreditCard
+  CreditCard,
+  PlusCircle,
+  QrCode,
+  ExternalLink,
+  Send,
+  X,
+  Sparkles
 } from 'lucide-react';
 
 interface Transaction {
@@ -35,6 +41,7 @@ export default function FundingPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
+  const [depositModalOpen, setDepositModalOpen] = useState(false);
 
   const fetchTransactions = async (silent = false) => {
     if (!silent) setLoading(true);
@@ -119,7 +126,7 @@ export default function FundingPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#130f26] border border-[#2b2252] text-xs">
               <Wallet className="w-3.5 h-3.5 text-purple-400" />
               <span className="text-zinc-400">Current Balance:</span>
@@ -127,6 +134,14 @@ export default function FundingPage() {
                 ${parseFloat(reseller?.balance || '0.00').toFixed(2)}
               </span>
             </div>
+
+            <button
+              onClick={() => setDepositModalOpen(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white text-xs font-semibold shadow-md shadow-pink-600/30 flex items-center gap-1.5 transition"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>បញ្ចូលសមតុល្យ (Deposit)</span>
+            </button>
 
             <button
               onClick={() => fetchTransactions(false)}
@@ -255,6 +270,107 @@ export default function FundingPage() {
             </table>
           </div>
         </div>
+        {/* Modal: Deposit Funds */}
+        {depositModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#120e24] border border-[#2b2252] rounded-3xl w-full max-w-lg shadow-2xl p-6 sm:p-7 space-y-6 animate-in fade-in zoom-in-95 duration-150 relative">
+              <div className="flex items-center justify-between pb-3 border-b border-[#221c3b]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center">
+                    <CreditCard className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white">បញ្ចូលសមតុល្យកាបូប (Deposit Funds)</h3>
+                    <p className="text-[11px] text-zinc-400">SakuraAPI Reseller Atomic Reserve</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setDepositModalOpen(false)}
+                  className="p-1 rounded-lg hover:bg-[#201844] text-zinc-400 hover:text-white transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                {/* Method 1: ABA / Bakong KHQR */}
+                <div className="p-4 rounded-2xl bg-[#16102e] border border-[#2e2254] space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-white flex items-center gap-1.5">
+                      <QrCode className="w-4 h-4 text-pink-400" />
+                      <span>ជម្រើសទី ១: ស្កេន KHQR (ABA Bank / Bakong)</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                      លឿនបំផុត
+                    </span>
+                  </div>
+                  <p className="text-zinc-300 leading-relaxed text-[11px]">
+                    លោកអ្នកអាចផ្ទេរប្រាក់ចាប់ពី <strong className="text-pink-400">$5.00 USD</strong> ឡើងទៅតាមរយៈគណនីធនាគារ ABA ឬស្កេន KHQR គ្រប់ធនាគារក្នុងប្រទេសកម្ពុជា។
+                  </p>
+                  <div className="p-2.5 rounded-xl bg-[#0e0a1f] border border-[#221845] font-mono text-[11px] space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">ឈ្មោះគណនី:</span>
+                      <span className="text-white font-semibold">SAKURA TOPUP CO., LTD</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">រូបិយប័ណ្ណ:</span>
+                      <span className="text-emerald-400 font-semibold">USD / KHR</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Method 2: Telegram Admin Confirmation */}
+                <div className="p-4 rounded-2xl bg-[#16102e] border border-[#2e2254] space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-white flex items-center gap-1.5">
+                      <Send className="w-4 h-4 text-sky-400" />
+                      <span>ជម្រើសទី ២: បញ្ចូលតាម Telegram Support 24/7</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30">
+                      24/7 Online
+                    </span>
+                  </div>
+                  <p className="text-zinc-300 leading-relaxed text-[11px]">
+                    បន្ទាប់ពីផ្ទេររួច សូមផ្ញើវិក្កយបត្រ (Receipt) ឬ Transaction ID ទៅកាន់ Telegram Bot ផ្លូវការ ដើម្បីឱ្យ Admin បញ្ចូលសមតុល្យជូនភ្លាមៗ៖
+                  </p>
+
+                  <div className="p-2.5 rounded-xl bg-[#0e0a1f] border border-[#221845] text-[11px] flex items-center justify-between">
+                    <div>
+                      <div className="text-zinc-400">លេខកូដសម្គាល់គណនីរបស់អ្នក:</div>
+                      <div className="font-mono text-purple-300 font-bold">{user?.name || 'Reseller'} (ID: {reseller?.id?.slice(0, 8) || 'Active'})</div>
+                    </div>
+                    <a
+                      href="https://t.me/Sakuraapi_bot"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs flex items-center gap-1 transition"
+                    >
+                      <Send className="w-3 h-3" />
+                      <span>@Sakuraapi_bot</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Note */}
+                <div className="text-[11px] text-zinc-400 bg-purple-500/10 border border-purple-500/20 p-3 rounded-xl flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
+                  <span>
+                    សមតុល្យរបស់អ្នកត្រូវបានការពារដោយប្រព័ន្ធសុវត្ថិភាពទ្វេដង (Atomic Reserve) ធានាថាមិនបាត់បង់ប្រាក់ឡើយ។
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={() => setDepositModalOpen(false)}
+                  className="w-full py-2.5 rounded-xl bg-[#1e1738] hover:bg-[#2b2152] text-white font-semibold text-xs transition"
+                >
+                  យល់ព្រម / បិទ
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

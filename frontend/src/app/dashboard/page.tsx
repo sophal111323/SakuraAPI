@@ -578,7 +578,7 @@ export default function DashboardPage() {
                       <div>SakuraAPI Order ID: <strong className="font-mono text-white">{orderSuccess.order_id}</strong></div>
                       <div>Amount: <strong className="text-emerald-400">${orderSuccess.amount}</strong></div>
                       {orderSuccess.provider_order_id && (
-                        <div>SoraTopup Ref: <span className="font-mono text-purple-300">{orderSuccess.provider_order_id}</span></div>
+                        <div>Provider Ref: <span className="font-mono text-purple-300">{orderSuccess.provider_order_id}</span></div>
                       )}
                       {orderSuccess.refunded && (
                         <div className="text-amber-400 font-semibold">✓ Balance immediately refunded in full.</div>
@@ -679,7 +679,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-zinc-400 flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Upstream ID Validator (Bay2Game)</span>
+                        <span>Instant Player ID Validator</span>
                       </span>
                       <button
                         type="button"
@@ -761,7 +761,7 @@ export default function DashboardPage() {
                       {orderSubmitting ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Reserving Balance & Dispatching to SoraTopup...</span>
+                          <span>Reserving Balance & Dispatching Order...</span>
                         </>
                       ) : (
                         <>
@@ -856,7 +856,7 @@ export default function DashboardPage() {
                   {checkingId ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Validating with Upstream Bay2Game...</span>
+                      <span>Validating In-game Player ID...</span>
                     </>
                   ) : (
                     <>

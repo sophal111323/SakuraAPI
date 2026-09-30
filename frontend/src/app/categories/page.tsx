@@ -160,7 +160,7 @@ export default function CategoriesPage() {
               </span>
             </h1>
             <p className="text-xs text-zinc-400 mt-1">
-              Upstream stock synced directly from SoraTopup provider API. Click any game to view products and live reseller rates.
+              Automated real-time stock synchronization with instant fulfillment gateway. Click any game to view products and live reseller rates.
             </p>
           </div>
 
@@ -189,7 +189,7 @@ export default function CategoriesPage() {
         <div className="bg-[#120e24] border border-purple-500/20 rounded-xl p-3.5 flex items-center gap-3 text-xs text-zinc-300">
           <Info className="w-4 h-4 text-purple-400 shrink-0" />
           <span>
-            <strong>Pricing Engine:</strong> Prices displayed reflect your reseller cost after dynamic markup calculation. Upstream product codes match the exact SoraTopup API denomination specs.
+            <strong>Pricing Engine:</strong> Prices displayed reflect your reseller cost after tier discount calculation. Product codes match official publisher denomination specs.
           </span>
         </div>
 
