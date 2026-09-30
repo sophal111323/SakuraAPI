@@ -151,7 +151,7 @@ export default function OrdersPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-slide-up-1">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2 flex-wrap">
               <span>Orders Management</span>
@@ -182,7 +182,7 @@ export default function OrdersPage() {
         </div>
 
         {/* Filter Bar & Search */}
-        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg">
+        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg animate-slide-up-2">
           {/* Status Tabs */}
           <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
             {filterTabs.map((tab) => {
@@ -228,7 +228,7 @@ export default function OrdersPage() {
         </div>
 
         {/* Orders Table */}
-        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl overflow-hidden shadow-xl animate-slide-up-3">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-[#100d1e] text-zinc-400 uppercase text-[10px] tracking-wider border-b border-[#221c3b]">

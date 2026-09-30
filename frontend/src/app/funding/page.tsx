@@ -107,7 +107,7 @@ export default function FundingPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-slide-up-1">
           <div>
             <div className="flex items-center gap-2.5">
               <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -154,7 +154,7 @@ export default function FundingPage() {
         </div>
 
         {/* Ledger Security Guarantee */}
-        <div className="bg-[#120e24] border border-[#261f43] rounded-xl p-3.5 flex items-center justify-between gap-4 text-xs text-zinc-400">
+        <div className="bg-[#120e24] border border-[#261f43] rounded-xl p-3.5 flex items-center justify-between gap-4 text-xs text-zinc-400 animate-slide-up-2">
           <div className="flex items-center gap-2 text-zinc-300">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>
@@ -165,7 +165,7 @@ export default function FundingPage() {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 animate-slide-up-3">
           {['ALL', 'ADMIN_CREDIT', 'ORDER_PAYMENT', 'ORDER_REFUND'].map((t) => (
             <button
               key={t}
@@ -182,7 +182,7 @@ export default function FundingPage() {
         </div>
 
         {/* Transactions Table */}
-        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl overflow-hidden shadow-xl animate-slide-up-4">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-[#100d1e] text-zinc-400 uppercase text-[10px] tracking-wider border-b border-[#221c3b]">

@@ -151,7 +151,7 @@ export default function CategoriesPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-slide-up-1">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
               <span>Game Categories & Stock</span>
@@ -186,7 +186,7 @@ export default function CategoriesPage() {
         </div>
 
         {/* Notice Info Card */}
-        <div className="bg-[#120e24] border border-purple-500/20 rounded-xl p-3.5 flex items-center gap-3 text-xs text-zinc-300">
+        <div className="bg-[#120e24] border border-purple-500/20 rounded-xl p-3.5 flex items-center gap-3 text-xs text-zinc-300 animate-slide-up-2">
           <Info className="w-4 h-4 text-purple-400 shrink-0" />
           <span>
             <strong>Pricing Engine:</strong> Prices displayed reflect your reseller cost after tier discount calculation. Product codes match official publisher denomination specs.
@@ -194,7 +194,7 @@ export default function CategoriesPage() {
         </div>
 
         {/* Games Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-slide-up-3">
           {filteredGames.map((game) => (
             <div
               key={game.id}

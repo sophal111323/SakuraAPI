@@ -291,7 +291,7 @@ export default function DashboardPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative">
         {/* Dashboard Title & Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-slide-up-1">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl font-bold tracking-tight text-white">Reseller Dashboard</h1>
@@ -343,7 +343,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Hero Balance & Financials */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 animate-slide-up-2">
           {/* Card 1: Main Balance */}
           <div className="bg-gradient-to-br from-[#1a1238] via-[#140e2b] to-[#100b22] border-2 border-purple-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
             <div className="flex items-center justify-between">
@@ -415,7 +415,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Order Status Breakdown Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-slide-up-3">
           <div className="bg-[#130f26] border border-emerald-500/20 rounded-xl p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
@@ -463,7 +463,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Orders Section */}
-        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl overflow-hidden shadow-xl animate-slide-up-4">
           <div className="p-5 border-b border-[#221c3b] flex items-center justify-between">
             <div>
               <h2 className="text-sm font-bold text-white">Recent Top-up Orders</h2>

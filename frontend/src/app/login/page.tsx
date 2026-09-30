@@ -29,7 +29,7 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md relative z-10 space-y-6">
         {/* Brand Header with Uploaded Logo */}
-        <div className="text-center space-y-3">
+        <div className="text-center space-y-3 animate-slide-up-1">
           <Link href="/" className="inline-block group transition-transform duration-300 hover:scale-105">
             <div className="relative mx-auto w-24 h-24 sm:w-28 sm:h-28 rounded-3xl p-1 bg-gradient-to-tr from-pink-500 via-purple-500 to-sky-400 shadow-2xl shadow-purple-600/40">
               <div className="w-full h-full rounded-[22px] overflow-hidden bg-[#0e0a1f] flex items-center justify-center p-1.5">
@@ -58,7 +58,7 @@ export default function LoginPage() {
         </div>
 
         {/* Telegram-Only Login Card */}
-        <div className="bg-[#120d26]/90 backdrop-blur-xl border border-[#2d2256] rounded-3xl p-6 sm:p-8 shadow-2xl shadow-purple-950/50 space-y-6 relative overflow-hidden">
+        <div className="bg-[#120d26]/90 backdrop-blur-xl border border-[#2d2256] rounded-3xl p-6 sm:p-8 shadow-2xl shadow-purple-950/50 space-y-6 relative overflow-hidden animate-slide-up-2">
           {/* Subtle Accent Glow */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 blur-3xl pointer-events-none" />
 

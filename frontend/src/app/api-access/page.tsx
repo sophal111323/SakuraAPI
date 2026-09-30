@@ -169,7 +169,7 @@ export default function ApiAccessPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-slide-up-1">
           <div>
             <div className="flex items-center gap-2.5">
               <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -220,7 +220,7 @@ export default function ApiAccessPage() {
         )}
 
         {/* Security Architecture Callout */}
-        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl p-5 shadow-xl grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl p-5 shadow-xl grid grid-cols-1 md:grid-cols-3 gap-4 animate-slide-up-2">
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-4 h-4 text-purple-400" />
@@ -259,7 +259,7 @@ export default function ApiAccessPage() {
         </div>
 
         {/* Keys Table */}
-        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl overflow-hidden shadow-xl animate-slide-up-3">
           <div className="p-4 border-b border-[#221c3b] flex items-center justify-between">
             <h2 className="text-sm font-bold text-white">Active API Keys</h2>
             <Link
