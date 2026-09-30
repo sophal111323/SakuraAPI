@@ -9,6 +9,7 @@ export interface User {
   name: string;
   role: 'ADMIN' | 'RESELLER';
   status: 'ACTIVE' | 'SUSPENDED' | 'PENDING';
+  avatarUrl?: string | null;
 }
 
 export interface Reseller {
@@ -18,6 +19,7 @@ export interface Reseller {
   currency: string;
   companyName?: string;
   pricingTier?: string;
+  avatarUrl?: string | null;
 }
 
 interface AuthContextType {

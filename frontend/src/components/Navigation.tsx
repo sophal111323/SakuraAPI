@@ -116,6 +116,22 @@ export default function Navigation() {
                       </div>
                     )}
                     <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-xl bg-[#181330] border border-[#2d2454] text-xs whitespace-nowrap">
+                      <div className="w-5 h-5 rounded-md bg-gradient-to-tr from-pink-500 to-purple-600 p-[1px] shrink-0 overflow-hidden">
+                        <div className="w-full h-full bg-[#0d091e] rounded-[5px] flex items-center justify-center text-[10px] font-bold text-pink-300 overflow-hidden">
+                          {user.telegram ? (
+                            <img
+                              src={`${process.env.NEXT_PUBLIC_API_URL || 'https://sakuraapi.lol/api/v1'}/avatar/${user.telegram.replace(/^@/, '')}`}
+                              alt=""
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            user.name.slice(0, 1).toUpperCase()
+                          )}
+                        </div>
+                      </div>
                       <span className="text-white font-medium">{user.name}</span>
                       <span
                         className={`text-[9px] uppercase font-bold px-1.5 py-0.5 rounded ${

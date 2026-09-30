@@ -88,6 +88,9 @@ export class AuthService {
 
     const token = this.generateToken(result.user);
 
+    const tgHandle = (result.user.telegram || '').replace(/^@/, '');
+    const avatarUrl = tgHandle ? `/api/v1/avatar/${tgHandle}` : null;
+
     return {
       accessToken: token,
       user: {
@@ -97,6 +100,7 @@ export class AuthService {
         name: result.user.name,
         role: result.user.role,
         status: result.user.status,
+        avatarUrl,
       },
       reseller: {
         id: result.reseller.id,
@@ -104,6 +108,7 @@ export class AuthService {
         currency: result.reseller.currency,
         companyName: result.reseller.companyName,
         telegram: result.reseller.telegram,
+        avatarUrl,
       },
     };
   }
@@ -142,6 +147,8 @@ export class AuthService {
     }
 
     const token = this.generateToken(user);
+    const cleanTg = (user.telegram || user.reseller?.telegram || '').replace(/^@/, '');
+    const avatarUrl = cleanTg ? `/api/v1/avatar/${cleanTg}` : null;
 
     return {
       accessToken: token,
@@ -152,6 +159,7 @@ export class AuthService {
         name: user.name,
         role: user.role,
         status: user.status,
+        avatarUrl,
       },
       reseller: user.reseller
         ? {
@@ -160,6 +168,7 @@ export class AuthService {
             currency: user.reseller.currency,
             companyName: user.reseller.companyName,
             telegram: user.reseller.telegram,
+            avatarUrl,
           }
         : null,
     };
@@ -192,6 +201,9 @@ export class AuthService {
       throw new NotFoundException('User profile not found');
     }
 
+    const cleanTg = (user.telegram || user.reseller?.telegram || '').replace(/^@/, '');
+    const avatarUrl = cleanTg ? `/api/v1/avatar/${cleanTg}` : null;
+
     return {
       id: user.id,
       email: user.email,
@@ -199,12 +211,14 @@ export class AuthService {
       name: user.name,
       role: user.role,
       status: user.status,
+      avatarUrl: avatarUrl || user.telegramPhotoUrl,
       createdAt: user.createdAt,
       reseller: user.reseller
         ? {
             id: user.reseller.id,
             companyName: user.reseller.companyName,
             telegram: user.reseller.telegram,
+            avatarUrl: avatarUrl || user.reseller.telegramPhotoUrl,
             balance: user.reseller.balance.toString(),
             currency: user.reseller.currency,
             pricingTier: user.reseller.pricingTier,

@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [syncingOrders, setSyncingOrders] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   const fetchDashboard = async () => {
     setLoading(true);
@@ -114,6 +115,14 @@ export default function DashboardPage() {
     ? `@${user.email.split('@')[0]}`
     : '@reseller';
 
+  const cleanTelegram = (user?.telegram || reseller?.telegram || '').replace(/^@/, '');
+  const apiUrlBase = process.env.NEXT_PUBLIC_API_URL || 'https://sakuraapi.lol/api/v1';
+  const avatarSrc = user?.avatarUrl
+    ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `${apiUrlBase}${user.avatarUrl}`)
+    : cleanTelegram
+    ? `${apiUrlBase}/avatar/${cleanTelegram}`
+    : null;
+
   return (
     <AuthGuard redirectTo="/register">
       <div className="min-h-screen bg-[#070414] text-white selection:bg-pink-500 selection:text-white pb-16">
@@ -126,9 +135,18 @@ export default function DashboardPage() {
           {/* Header Profile Bar */}
           <div className="bg-[#100a26]/90 border border-[#261c47] rounded-3xl p-4 sm:p-5 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-600 p-0.5 shadow-lg shadow-pink-600/20 shrink-0">
-                <div className="w-full h-full bg-[#0d091e] rounded-[14px] flex items-center justify-center font-black text-lg text-pink-300">
-                  {user?.name ? user.name.slice(0, 1).toUpperCase() : 'S'}
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500 via-purple-600 to-indigo-600 p-0.5 shadow-lg shadow-pink-600/20 shrink-0 relative overflow-hidden">
+                <div className="w-full h-full bg-[#0d091e] rounded-[14px] flex items-center justify-center font-black text-lg text-pink-300 overflow-hidden relative">
+                  {avatarSrc && !avatarError ? (
+                    <img
+                      src={avatarSrc}
+                      alt={user?.name || 'Telegram Profile'}
+                      className="w-full h-full object-cover rounded-[14px]"
+                      onError={() => setAvatarError(true)}
+                    />
+                  ) : (
+                    <span>{user?.name ? user.name.slice(0, 1).toUpperCase() : 'S'}</span>
+                  )}
                 </div>
               </div>
 
