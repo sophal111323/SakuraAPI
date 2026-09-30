@@ -31,12 +31,6 @@ export default function LoginPage() {
     }
   };
 
-  const fillDemo = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setError(null);
-  };
-
   return (
     <div className="min-h-screen bg-[#090714] text-[#f1f0f7] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden selection:bg-pink-500 selection:text-white">
       {/* Background Neon Gradients & Ambient Glow */}
@@ -122,7 +116,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="ឧទាហរណ៍៖ alexander@company.com ឬ @username"
+                placeholder="បញ្ចូល Email ឬ @username របស់អ្នក"
                 className="w-full px-4 py-2.5 rounded-2xl bg-[#090714] border border-[#2b2050] text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-pink-500 transition"
               />
             </div>
@@ -137,7 +131,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
+                placeholder="បញ្ចូលលេខសម្ងាត់របស់អ្នក"
                 className="w-full px-4 py-2.5 rounded-2xl bg-[#090714] border border-[#2b2050] text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-pink-500 transition"
               />
             </div>
@@ -160,33 +154,6 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* Quick-fill Demo Cards for Testing */}
-          <div className="bg-[#171131]/60 border border-[#261c46] rounded-2xl p-3 space-y-2">
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-purple-300">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-              <span>គណនីសាកល្បង Quick-Fill Demo / Admin</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => fillDemo('reseller@sakuraapi.com', 'Reseller@Sakura123!')}
-                className="px-2.5 py-1.5 rounded-xl bg-[#0e0a1f] hover:bg-[#1a1436] border border-[#2f2355] text-left transition"
-              >
-                <div className="text-xs font-semibold text-white">Demo Reseller</div>
-                <div className="text-[10px] text-zinc-400 truncate">reseller@sakuraapi.com</div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => fillDemo('admin@sakuraapi.com', 'Admin@Sakura123!')}
-                className="px-2.5 py-1.5 rounded-xl bg-[#0e0a1f] hover:bg-[#1a1436] border border-[#2f2355] text-left transition"
-              >
-                <div className="text-xs font-semibold text-white">Admin Portal</div>
-                <div className="text-[10px] text-zinc-400 truncate">admin@sakuraapi.com</div>
-              </button>
-            </div>
-          </div>
 
           {/* Sign Up Link */}
           <div className="pt-4 border-t border-[#231a44] text-center text-xs text-zinc-400">
