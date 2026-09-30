@@ -49,7 +49,9 @@ export class ResellerService {
       this.prisma.order.count({
         where: { resellerId, status: { in: ['PENDING', 'PROCESSING'] } },
       }),
-      this.prisma.apiRequestLog.count({ where: { resellerId } }),
+      this.prisma.apiRequestLog.count({
+        where: { resellerId, apiKeyId: { not: null } },
+      }),
       this.prisma.order.findMany({
         where: { resellerId },
         take: 5,

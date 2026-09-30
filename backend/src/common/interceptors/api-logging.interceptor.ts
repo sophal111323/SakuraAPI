@@ -81,8 +81,16 @@ export class ApiLoggingInterceptor implements NestInterceptor {
     userAgent?: string;
     errorMessage?: string;
   }) {
-    // Only log API endpoints
+    // Only log external API endpoints, ignore internal frontend polling
     if (!data.endpoint.includes('/api/')) return;
+    if (
+      data.endpoint.includes('/reseller/dashboard') ||
+      data.endpoint.includes('/auth/me') ||
+      data.endpoint.includes('/auth/profile') ||
+      data.endpoint.includes('/orders/sync')
+    ) {
+      return;
+    }
 
     this.prisma.apiRequestLog
       .create({

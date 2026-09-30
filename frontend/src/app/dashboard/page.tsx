@@ -91,7 +91,7 @@ export default function DashboardPage() {
     fetchDashboard();
     const interval = setInterval(() => {
       fetchDashboard();
-    }, 5000);
+    }, 20000);
     return () => clearInterval(interval);
   }, [token]);
 
