@@ -7,13 +7,25 @@ import { Zap, KeyRound, ShieldCheck, Headphones, Sparkles, ChevronRight } from '
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen bg-[#090714] text-[#f1f0f7] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden selection:bg-pink-500 selection:text-white">
-      {/* Background Neon Gradients & Ambient Glow */}
-      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[600px] h-[500px] bg-gradient-to-b from-fuchsia-600/20 via-purple-600/15 to-transparent blur-[120px] pointer-events-none rounded-full" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-sky-500/10 blur-[130px] pointer-events-none rounded-full" />
-
-      {/* Decorative Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f16380f_1px,transparent_1px),linear-gradient(to_bottom,#1f16380f_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none" />
+    <div className="min-h-screen bg-[#080510] text-[#f1f0f7] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden selection:bg-pink-500 selection:text-white">
+      {/* Background Animated Video Layer */}
+      <div
+        className="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[#080510]"
+        aria-hidden="true"
+      >
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="w-full h-full object-cover object-center pointer-events-none opacity-35"
+          tabIndex={-1}
+        >
+          <source src="/video/background.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#090714]/85 via-[#0d0922]/85 to-[#080510]/95" />
+      </div>
 
       <div className="w-full max-w-md relative z-10 space-y-6">
         {/* Brand Header with Uploaded Logo */}

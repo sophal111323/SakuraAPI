@@ -116,17 +116,31 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#090714] text-[#f1f0f7] selection:bg-pink-500 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen bg-[#080510] text-[#f1f0f7] selection:bg-pink-500 selection:text-white relative overflow-hidden">
+      {/* Background Animated Video Layer */}
+      <div
+        className="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[#080510]"
+        aria-hidden="true"
+      >
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="w-full h-full object-cover object-center pointer-events-none opacity-40 sm:opacity-45"
+          tabIndex={-1}
+        >
+          <source src="/video/background.mp4" type="video/mp4" />
+        </video>
+
+        {/* Dark Purple / Sakura Overlay to ensure high contrast, readability & premium aesthetics */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#090714]/85 via-[#0d0922]/80 to-[#080510]/95" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-fuchsia-900/20 via-transparent to-[#080510]/75" />
+      </div>
+
       {/* Navigation */}
       <Navigation />
-
-      {/* Background Neon Ambient Glows */}
-      <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-b from-fuchsia-600/15 via-purple-600/10 to-transparent blur-[140px] pointer-events-none rounded-full" />
-      <div className="absolute top-[40%] right-[-10%] w-[500px] h-[500px] bg-sky-500/10 blur-[150px] pointer-events-none rounded-full" />
-      <div className="absolute top-[75%] left-[-10%] w-[500px] h-[500px] bg-pink-500/10 blur-[150px] pointer-events-none rounded-full" />
-
-      {/* Decorative Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f16380a_1px,transparent_1px),linear-gradient(to_bottom,#1f16380a_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none" />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10 space-y-20">
         {/* User Session Banner (if logged in) */}
