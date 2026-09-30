@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { useAuth } from '@/context/AuthContext';
@@ -25,8 +26,26 @@ import {
 } from 'lucide-react';
 
 export default function Home() {
-  const { user, reseller } = useAuth();
+  const router = useRouter();
+  const { user, reseller, loading } = useAuth();
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace('/dashboard');
+    }
+  }, [user, loading, router]);
+
+  if (!loading && user) {
+    return (
+      <div className="min-h-screen bg-[#070414] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-2 border-pink-500 border-t-transparent animate-spin" />
+          <span className="text-xs text-zinc-400">កំពុងនាំទៅកាន់ Dashboard...</span>
+        </div>
+      </div>
+    );
+  }
 
   const sampleCurl = `curl -X POST https://sakuraapi.lol/api/v1/orders \\
   -H "Authorization: Bearer sk_live_YOUR_API_KEY" \\

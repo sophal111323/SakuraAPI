@@ -35,7 +35,6 @@ export default function Navigation() {
   ];
 
   const resellerNavItems = [
-    { label: 'Overview', href: '/', icon: LayoutDashboard, exact: true },
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Categories', href: '/categories', icon: Gamepad2 },
     { label: 'Orders', href: '/orders', icon: Receipt },
@@ -65,7 +64,7 @@ export default function Navigation() {
         <div className="flex items-center justify-between h-16 gap-2">
           {/* Logo */}
           <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-            <Link href="/" className="flex items-center gap-2 group shrink-0">
+            <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 group shrink-0">
               <img
                 src="/logo.png"
                 alt="SakuraAPI"
