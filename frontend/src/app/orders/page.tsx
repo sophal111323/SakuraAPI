@@ -7,7 +7,6 @@ import { useAuth } from '@/context/AuthContext';
 import {
   Receipt,
   Search,
-  Filter,
   CheckCircle2,
   Clock,
   XCircle,
@@ -17,7 +16,10 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldAlert,
-  ArrowDownRight
+  Gamepad2,
+  Calendar,
+  User,
+  CreditCard
 } from 'lucide-react';
 
 interface OrderItem {
@@ -57,7 +59,6 @@ export default function OrdersPage() {
       const authToken = token || (typeof window !== 'undefined' ? localStorage.getItem('sakura_token') : null);
 
       if (!authToken) {
-        // Fallback demo data
         setOrders([]);
         setTotalOrders(0);
         setTotalPages(1);
@@ -100,7 +101,6 @@ export default function OrdersPage() {
       const authToken = token || (typeof window !== 'undefined' ? localStorage.getItem('sakura_token') : null);
 
       if (!authToken) {
-        // Fallback selected order
         const found = orders.find((o) => o.id === orderId);
         setSelectedOrder(found || null);
         setOrderDetailLoading(false);
@@ -126,10 +126,9 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchOrders();
-    // Real-time automatic polling every 4 seconds
     const interval = setInterval(() => {
       fetchOrders();
-    }, 4000);
+    }, 20000);
     return () => clearInterval(interval);
   }, [page, statusFilter, token]);
 
@@ -140,305 +139,377 @@ export default function OrdersPage() {
   };
 
   const filterTabs = [
-    { label: 'All Orders', value: 'ALL' },
-    { label: 'Successful', value: 'SUCCESS' },
-    { label: 'Pending', value: 'PENDING' },
-    { label: 'Failed', value: 'FAILED' },
+    { label: 'ទាំងអស់ (All)', value: 'ALL' },
+    { label: 'ជោគជ័យ (Success)', value: 'SUCCESS' },
+    { label: 'កំពុងដំណើរការ (Pending)', value: 'PENDING' },
+    { label: 'បរាជ័យ (Failed)', value: 'FAILED' },
   ];
 
   return (
     <AuthGuard redirectTo="/register">
-      <div className="min-h-screen bg-[#0b0914] text-[#f1f0f7] selection:bg-purple-600 selection:text-white">
+      <div className="min-h-screen bg-[#070414] text-white selection:bg-pink-500 selection:text-white pb-16">
         <Navigation />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-slide-up-1">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2 flex-wrap">
-              <span>Orders Management</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20 font-medium">
-                {totalOrders} Orders
-              </span>
-              <span className="flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        {/* Ambient Top Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 bg-gradient-to-b from-pink-600/10 via-purple-600/5 to-transparent blur-3xl pointer-events-none" />
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6 relative z-10">
+          {/* Header */}
+          <div className="bg-[#100a26]/90 border border-[#261c47] rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                  <Receipt className="w-5 h-5 text-pink-400" />
+                  <span>ការគ្រប់គ្រងការបញ្ជាទិញ (Orders Ledger)</span>
+                </h1>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">
+                  {totalOrders.toLocaleString()} ប្រតិបត្តិការ
                 </span>
-                <span>Live Stream</span>
-              </span>
-            </h1>
-            <p className="text-xs text-zinc-400 mt-1">
-              Complete history of automated game top-ups submitted via API and dashboard.
-            </p>
-          </div>
-
-          <button
-            onClick={fetchOrders}
-            disabled={loading}
-            className="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-[#16122d] hover:bg-[#201844] border border-[#2d2454] text-xs text-zinc-300 flex items-center gap-1.5 transition disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-purple-400' : ''}`} />
-            <span>Refresh</span>
-          </button>
-        </div>
-
-        {/* Filter Bar & Search */}
-        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg animate-slide-up-2">
-          {/* Status Tabs */}
-          <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-            {filterTabs.map((tab) => {
-              const active = statusFilter === tab.value;
-              return (
-                <button
-                  key={tab.value}
-                  onClick={() => {
-                    setStatusFilter(tab.value);
-                    setPage(1);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition whitespace-nowrap ${
-                    active
-                      ? 'bg-purple-600 text-white font-semibold shadow-md shadow-purple-600/30'
-                      : 'text-zinc-400 hover:text-white hover:bg-[#1b1536]'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Search Form */}
-          <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 w-full md:w-80">
-            <div className="relative w-full">
-              <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Order ID, Player ID, Game..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3.5 py-1.5 rounded-xl bg-[#0b0914] border border-[#2d2454] text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 transition"
-              />
+                <span className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  <span>ផ្សាយផ្ទាល់ (Live)</span>
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400">
+                ប្រវត្តិលម្អិតនៃការបញ្ចូលពេជ្រហ្គេមស្វ័យប្រវត្តិទាំងអស់ដែលបានបញ្ជាទិញតាមរយៈ API និង Dashboard។
+              </p>
             </div>
-            <button
-              type="submit"
-              className="px-3 py-1.5 rounded-xl bg-[#1b1536] hover:bg-[#261f49] border border-[#352963] text-purple-300 text-xs font-medium transition"
-            >
-              Search
-            </button>
-          </form>
-        </div>
 
-        {/* Orders Table */}
-        <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl overflow-hidden shadow-xl animate-slide-up-3">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#100d1e] text-zinc-400 uppercase text-[10px] tracking-wider border-b border-[#221c3b]">
-                <tr>
-                  <th className="py-3.5 px-4">Order ID</th>
-                  <th className="py-3.5 px-4">Game</th>
-                  <th className="py-3.5 px-4">Product</th>
-                  <th className="py-3.5 px-4">Player Details</th>
-                  <th className="py-3.5 px-4">Amount</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4">Created At</th>
-                  <th className="py-3.5 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#1e1738]">
-                {loading ? (
-                  <tr>
-                    <td colSpan={8} className="py-12 text-center text-zinc-500">
-                      <div className="flex flex-col items-center gap-2">
-                        <RefreshCw className="w-5 h-5 animate-spin text-purple-400" />
-                        <span>Fetching orders ledger...</span>
+            <button
+              onClick={fetchOrders}
+              disabled={loading}
+              className="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-[#191136] hover:bg-[#251a50] border border-[#342468] text-xs text-zinc-300 hover:text-white flex items-center gap-1.5 transition disabled:opacity-50 active:scale-95 shadow-sm"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-pink-400' : ''}`} />
+              <span>ទាញយកថ្មី</span>
+            </button>
+          </div>
+
+          {/* Filter Bar & Search */}
+          <div className="bg-[#0f0924] border border-[#271c47] rounded-2xl p-3.5 sm:p-4 flex flex-col md:flex-row items-center justify-between gap-3 shadow-lg">
+            {/* Status Tabs */}
+            <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+              {filterTabs.map((tab) => {
+                const active = statusFilter === tab.value;
+                return (
+                  <button
+                    key={tab.value}
+                    onClick={() => {
+                      setStatusFilter(tab.value);
+                      setPage(1);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap ${
+                      active
+                        ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white font-bold shadow-md shadow-pink-600/30'
+                        : 'text-zinc-400 hover:text-white hover:bg-[#181135]'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Search Form */}
+            <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 w-full md:w-80">
+              <div className="relative w-full">
+                <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="ស្វែងរក Order ID, Player ID, ឈ្មោះហ្គេម..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-[#0b061b] border border-[#2b1f50] text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-pink-500 transition"
+                />
+              </div>
+              <button
+                type="submit"
+                className="px-3.5 py-2 rounded-xl bg-[#191136] hover:bg-[#251a50] border border-[#342468] text-pink-300 hover:text-white text-xs font-semibold transition shrink-0"
+              >
+                ស្វែងរក
+              </button>
+            </form>
+          </div>
+
+          {/* Orders Section */}
+          <div className="bg-[#0f0924] border border-[#271c47] rounded-3xl overflow-hidden shadow-xl">
+            {/* Mobile View: Cards */}
+            <div className="sm:hidden divide-y divide-[#1c133a]">
+              {loading ? (
+                <div className="p-10 text-center text-zinc-400 flex flex-col items-center gap-2 text-xs">
+                  <RefreshCw className="w-5 h-5 animate-spin text-pink-400" />
+                  <span>កំពុងទាញយកទិន្នន័យបញ្ជាទិញ...</span>
+                </div>
+              ) : orders.length > 0 ? (
+                orders.map((ord) => (
+                  <div key={ord.id} className="p-4 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <Gamepad2 className="w-4 h-4 text-pink-400" />
+                        <span className="text-xs font-bold text-white">{ord.game}</span>
                       </div>
-                    </td>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                          ord.status === 'SUCCESS'
+                            ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                            : ord.status === 'PENDING' || ord.status === 'PROCESSING'
+                            ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                            : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
+                        }`}
+                      >
+                        {ord.status === 'SUCCESS' ? 'ជោគជ័យ' : ord.status === 'PENDING' || ord.status === 'PROCESSING' ? 'ដំណើរការ' : 'បរាជ័យ'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-zinc-300 font-medium">{ord.product}</span>
+                      <span className="font-bold text-white text-sm">${parseFloat(ord.amount).toFixed(2)}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono bg-[#0b061b] p-2 rounded-xl border border-[#21163f]">
+                      <span>UID: {ord.playerId}{ord.serverId ? ` (${ord.serverId})` : ''}</span>
+                      <span className="text-pink-300 truncate max-w-[120px]">{ord.orderNumber}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-1">
+                      <span>{new Date(ord.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <button
+                        onClick={() => openOrderDetail(ord.id)}
+                        className="px-3 py-1 rounded-lg bg-pink-600/15 hover:bg-pink-600/25 border border-pink-500/30 text-pink-300 font-semibold text-xs transition"
+                      >
+                        មើលលម្អិត
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-10 text-center text-xs text-zinc-500">
+                  មិនមានទិន្នន័យបញ្ជាទិញត្រូវនឹងលក្ខខណ្ឌស្វែងរកឡើយ។
+                </div>
+              )}
+            </div>
+
+            {/* Desktop View: Table */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#0b061c] text-zinc-400 uppercase text-[10px] tracking-wider border-b border-[#21163f]">
+                  <tr>
+                    <th className="py-3.5 px-4">លេខកូដ Order</th>
+                    <th className="py-3.5 px-4">ហ្គេម (Game)</th>
+                    <th className="py-3.5 px-4">កញ្ចប់ពេជ្រ / UC</th>
+                    <th className="py-3.5 px-4">ព័ត៌មាន Player</th>
+                    <th className="py-3.5 px-4">តម្លៃទឹកប្រាក់</th>
+                    <th className="py-3.5 px-4">ស្ថានភាព</th>
+                    <th className="py-3.5 px-4">កាលបរិច្ឆេទ</th>
+                    <th className="py-3.5 px-4 text-right">សកម្មភាព</th>
                   </tr>
-                ) : orders.length > 0 ? (
-                  orders.map((ord) => (
-                    <tr key={ord.id} className="hover:bg-[#181330] transition">
-                      <td className="py-3.5 px-4">
-                        <div className="font-mono font-medium text-purple-300">{ord.orderNumber}</div>
-                        {ord.resellerOrderId && (
-                          <div className="text-[10px] text-zinc-500 font-mono">Ref: {ord.resellerOrderId}</div>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4 font-semibold text-white">{ord.game}</td>
-                      <td className="py-3.5 px-4 text-zinc-300">{ord.product}</td>
-                      <td className="py-3.5 px-4">
-                        <div className="font-mono text-zinc-200">UID: {ord.playerId}</div>
-                        {ord.serverId && (
-                          <div className="text-[10px] text-amber-400 font-mono">Server: {ord.serverId}</div>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4 font-bold text-white text-sm">
-                        ${parseFloat(ord.amount).toFixed(2)}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
-                            ord.status === 'SUCCESS'
-                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                              : ord.status === 'PENDING'
-                              ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                              : 'bg-red-500/15 text-red-400 border border-red-500/30'
-                          }`}
-                        >
-                          {ord.status === 'SUCCESS' && <CheckCircle2 className="w-3 h-3" />}
-                          {ord.status === 'PENDING' && <Clock className="w-3 h-3" />}
-                          {ord.status === 'FAILED' && <XCircle className="w-3 h-3" />}
-                          {ord.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-zinc-400 text-[11px]">
-                        {new Date(ord.createdAt).toLocaleString()}
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={() => openOrderDetail(ord.id)}
-                          className="px-2.5 py-1 rounded-lg bg-[#1b1536] hover:bg-[#271d50] border border-[#352963] text-purple-300 text-xs font-medium transition inline-flex items-center gap-1"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>Details</span>
-                        </button>
+                </thead>
+                <tbody className="divide-y divide-[#1a1236]">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={8} className="py-12 text-center text-zinc-400">
+                        <div className="flex flex-col items-center gap-2">
+                          <RefreshCw className="w-5 h-5 animate-spin text-pink-400" />
+                          <span>កំពុងទាញយកទិន្នន័យបញ្ជាទិញ...</span>
+                        </div>
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={8} className="py-12 text-center text-zinc-500">
-                      No orders found matching your criteria.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  ) : orders.length > 0 ? (
+                    orders.map((ord) => (
+                      <tr key={ord.id} className="hover:bg-[#150d32] transition">
+                        <td className="py-3.5 px-4">
+                          <div className="font-mono font-bold text-pink-300">{ord.orderNumber}</div>
+                          {ord.resellerOrderId && (
+                            <div className="text-[10px] text-zinc-500 font-mono">Ref: {ord.resellerOrderId}</div>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-white">{ord.game}</td>
+                        <td className="py-3.5 px-4 text-zinc-300">{ord.product}</td>
+                        <td className="py-3.5 px-4">
+                          <div className="font-mono text-white">UID: {ord.playerId}</div>
+                          {ord.serverId && (
+                            <div className="text-[10px] text-amber-300 font-mono">Zone: {ord.serverId}</div>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-white text-sm">
+                          ${parseFloat(ord.amount).toFixed(2)}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                              ord.status === 'SUCCESS'
+                                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                                : ord.status === 'PENDING' || ord.status === 'PROCESSING'
+                                ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                                : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
+                            }`}
+                          >
+                            {ord.status === 'SUCCESS' && <CheckCircle2 className="w-3 h-3" />}
+                            {ord.status === 'PENDING' && <Clock className="w-3 h-3" />}
+                            {ord.status === 'FAILED' && <XCircle className="w-3 h-3" />}
+                            {ord.status === 'SUCCESS'
+                              ? 'ជោគជ័យ'
+                              : ord.status === 'PENDING' || ord.status === 'PROCESSING'
+                              ? 'ដំណើរការ'
+                              : 'បរាជ័យ'}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-zinc-400 text-[11px]">
+                          {new Date(ord.createdAt).toLocaleString()}
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <button
+                            onClick={() => openOrderDetail(ord.id)}
+                            className="px-2.5 py-1 rounded-lg bg-[#191136] hover:bg-[#251a50] border border-[#342468] text-pink-300 hover:text-white text-xs font-semibold transition inline-flex items-center gap-1 active:scale-95"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>មើលលម្អិត</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="py-12 text-center text-zinc-500">
+                        មិនមានទិន្នន័យបញ្ជាទិញត្រូវនឹងលក្ខខណ្ឌស្វែងរកឡើយ។
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="p-4 border-t border-[#21163f] flex items-center justify-between text-xs text-zinc-400">
+                <div>
+                  ទំព័រ {page} នៃ {totalPages}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className="p-1.5 rounded-lg bg-[#191136] border border-[#342468] disabled:opacity-40 hover:bg-[#251a50] transition"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    className="p-1.5 rounded-lg bg-[#191136] border border-[#342468] disabled:opacity-40 hover:bg-[#251a50] transition"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="p-4 border-t border-[#221c3b] flex items-center justify-between text-xs text-zinc-400">
-              <div>
-                Page {page} of {totalPages}
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="p-1.5 rounded-lg bg-[#16122d] border border-[#2d2454] disabled:opacity-40 hover:bg-[#221c45] transition"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="p-1.5 rounded-lg bg-[#16122d] border border-[#2d2454] disabled:opacity-40 hover:bg-[#221c45] transition"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+          {/* Order Details Modal */}
+          {selectedOrder && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-[#120a2b] border border-[#2b1e52] rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                <div className="p-5 border-b border-[#21163f] flex items-center justify-between bg-[#150d32]">
+                  <div>
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <span>ព័ត៌មានលម្អិតនៃការបញ្ជាទិញ៖</span>
+                      <span className="font-mono text-pink-300">{selectedOrder.orderNumber}</span>
+                    </h3>
+                    <p className="text-[11px] text-zinc-400">កំណត់ត្រាផ្លូវការមិនអាចកែប្រែបាន</p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedOrder(null)}
+                    className="p-1 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="p-5 space-y-4 text-xs">
+                  {/* Status Callout */}
+                  <div
+                    className={`p-3.5 rounded-2xl border flex items-center justify-between ${
+                      selectedOrder.status === 'SUCCESS'
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                        : selectedOrder.status === 'PENDING' || selectedOrder.status === 'PROCESSING'
+                        ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                        : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {selectedOrder.status === 'SUCCESS' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                      {selectedOrder.status === 'PENDING' && <Clock className="w-4 h-4 text-amber-400" />}
+                      {selectedOrder.status === 'FAILED' && <XCircle className="w-4 h-4 text-rose-400" />}
+                      <span className="font-bold tracking-wider">
+                        {selectedOrder.status === 'SUCCESS'
+                          ? 'ស្ថានភាព៖ ជោគជ័យ'
+                          : selectedOrder.status === 'PENDING'
+                          ? 'ស្ថានភាព៖ កំពុងដំណើរការ'
+                          : 'ស្ថានភាព៖ បរាជ័យ'}
+                      </span>
+                    </div>
+                    <span className="font-extrabold text-white text-base">
+                      ${parseFloat(selectedOrder.amount).toFixed(2)} USD
+                    </span>
+                  </div>
+
+                  {selectedOrder.failureReason && (
+                    <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2">
+                      <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
+                      <div>
+                        <strong>កំហុសពី Provider៖</strong> {selectedOrder.failureReason}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Detail Breakdown */}
+                  <div className="bg-[#0b061b] rounded-2xl p-4 border border-[#21163f] space-y-2.5">
+                    <div className="flex justify-between py-1 border-b border-[#1c133a]">
+                      <span className="text-zinc-400">កូដយោង Reseller Ref៖</span>
+                      <span className="font-mono text-white font-medium">{selectedOrder.resellerOrderId || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-[#1c133a]">
+                      <span className="text-zinc-400">កូដយោង Provider Ref៖</span>
+                      <span className="font-mono text-pink-300 font-medium">{selectedOrder.providerOrderId || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-[#1c133a]">
+                      <span className="text-zinc-400">ហ្គេម៖</span>
+                      <span className="text-white font-bold">{selectedOrder.game?.name || selectedOrder.game}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-[#1c133a]">
+                      <span className="text-zinc-400">កញ្ចប់ទំនិញ៖</span>
+                      <span className="text-white font-semibold">{selectedOrder.product?.name || selectedOrder.product}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-[#1c133a]">
+                      <span className="text-zinc-400">Player UID របស់អ្នកលេង៖</span>
+                      <span className="font-mono text-emerald-400 font-bold">{selectedOrder.playerInfo?.playerId || selectedOrder.playerId}</span>
+                    </div>
+                    {(selectedOrder.playerInfo?.serverId || selectedOrder.serverId) && (
+                      <div className="flex justify-between py-1 border-b border-[#1c133a]">
+                        <span className="text-zinc-400">Zone ID / Server ID៖</span>
+                        <span className="font-mono text-amber-300 font-semibold">{selectedOrder.playerInfo?.serverId || selectedOrder.serverId}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between py-1">
+                      <span className="text-zinc-400">ពេលវេលាបញ្ជាទិញ៖</span>
+                      <span className="text-zinc-300">{new Date(selectedOrder.createdAt).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 border-t border-[#21163f] bg-[#0d0722] text-right">
+                  <button
+                    onClick={() => setSelectedOrder(null)}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold transition shadow-md shadow-pink-600/25 active:scale-95"
+                  >
+                    បិទផ្ទាំង (Close)
+                  </button>
+                </div>
               </div>
             </div>
           )}
-        </div>
-
-        {/* Order Details Modal */}
-        {selectedOrder && (
-          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-[#120e24] border border-[#2b2252] rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-              <div className="p-5 border-b border-[#221c3b] flex items-center justify-between bg-[#15102a]">
-                <div>
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <span>Order Details:</span>
-                    <span className="font-mono text-purple-300">{selectedOrder.orderNumber}</span>
-                  </h3>
-                  <p className="text-[11px] text-zinc-400">Complete immutable record</p>
-                </div>
-                <button
-                  onClick={() => setSelectedOrder(null)}
-                  className="p-1.5 rounded-lg bg-[#1e1738] hover:bg-[#2d2254] text-zinc-400 hover:text-white transition"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="p-5 space-y-4 text-xs">
-                {/* Status Callout */}
-                <div
-                  className={`p-3 rounded-xl border flex items-center justify-between ${
-                    selectedOrder.status === 'SUCCESS'
-                      ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
-                      : selectedOrder.status === 'PENDING'
-                      ? 'bg-amber-500/10 border-amber-500/20 text-amber-300'
-                      : 'bg-red-500/10 border-red-500/20 text-red-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    {selectedOrder.status === 'SUCCESS' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
-                    {selectedOrder.status === 'PENDING' && <Clock className="w-4 h-4 text-amber-400" />}
-                    {selectedOrder.status === 'FAILED' && <XCircle className="w-4 h-4 text-red-400" />}
-                    <span className="font-bold uppercase tracking-wider">{selectedOrder.status}</span>
-                  </div>
-                  <span className="font-bold text-white text-base">${parseFloat(selectedOrder.amount).toFixed(2)}</span>
-                </div>
-
-                {selectedOrder.failureReason && (
-                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-[11px] flex items-start gap-2">
-                    <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
-                    <div>
-                      <strong>Provider Error:</strong> {selectedOrder.failureReason}
-                    </div>
-                  </div>
-                )}
-
-                {/* Detail Breakdown */}
-                <div className="bg-[#0b0914] rounded-xl p-3.5 border border-[#231b40] space-y-2">
-                  <div className="flex justify-between py-1 border-b border-[#1b1535]">
-                    <span className="text-zinc-400">Reseller Order Ref:</span>
-                    <span className="font-mono text-white">{selectedOrder.resellerOrderId || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-[#1b1535]">
-                    <span className="text-zinc-400">Upstream Provider Ref:</span>
-                    <span className="font-mono text-purple-300">{selectedOrder.providerOrderId || 'PENDING'}</span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-[#1b1535]">
-                    <span className="text-zinc-400">Game:</span>
-                    <span className="text-white font-medium">{selectedOrder.game?.name || selectedOrder.game}</span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-[#1b1535]">
-                    <span className="text-zinc-400">Product Denomination:</span>
-                    <span className="text-white font-medium">{selectedOrder.product?.name || selectedOrder.product}</span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-[#1b1535]">
-                    <span className="text-zinc-400">Player UID:</span>
-                    <span className="font-mono text-emerald-400 font-semibold">{selectedOrder.playerInfo?.playerId || selectedOrder.playerId}</span>
-                  </div>
-                  {(selectedOrder.playerInfo?.serverId || selectedOrder.serverId) && (
-                    <div className="flex justify-between py-1 border-b border-[#1b1535]">
-                      <span className="text-zinc-400">Server ID:</span>
-                      <span className="font-mono text-amber-300">{selectedOrder.playerInfo?.serverId || selectedOrder.serverId}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between py-1">
-                    <span className="text-zinc-400">Timestamp:</span>
-                    <span className="text-zinc-300">{new Date(selectedOrder.createdAt).toLocaleString()}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 border-t border-[#221c3b] bg-[#100d1e] text-right">
-                <button
-                  onClick={() => setSelectedOrder(null)}
-                  className="px-4 py-1.5 rounded-xl bg-[#1e1738] hover:bg-[#2b2152] text-white font-medium transition"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
+        </main>
+      </div>
     </AuthGuard>
   );
 }
