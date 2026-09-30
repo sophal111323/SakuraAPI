@@ -13,6 +13,7 @@ import { ResellerModule } from './reseller/reseller.module';
 import { AdminModule } from './admin/admin.module';
 import { CommonModule } from './common/common.module';
 import { CheckIdModule } from './check-id/check-id.module';
+import { FundingModule } from './funding/funding.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -29,6 +30,7 @@ import { AppService } from './app.service';
     ProviderModule,
     BalanceModule,
     CheckIdModule,
+    FundingModule,
     CatalogModule,
     OrdersModule,
     TransactionsModule,
