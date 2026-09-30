@@ -38,6 +38,15 @@ export class AuthController {
     return this.authService.telegramLogin(dto);
   }
 
+  @Post('telegram/oidc')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login or Register with Telegram OpenID Connect (OIDC)' })
+  @ApiResponse({ status: 200, description: 'Authenticated successfully via Telegram OIDC' })
+  @ApiResponse({ status: 401, description: 'Invalid authorization code or exchange failure' })
+  async telegramOidcAuth(@Body() body: { code: string; redirectUri: string }) {
+    return this.authService.telegramOidcLogin(body.code, body.redirectUri);
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('api-key')

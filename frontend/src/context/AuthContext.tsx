@@ -28,6 +28,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (data: { telegram: string; email?: string; password: string; name: string; companyName?: string }) => Promise<{ success: boolean; error?: string }>;
   telegramAuth: (telegramData: any) => Promise<{ success: boolean; error?: string }>;
+  telegramOidcAuth: (code: string, redirectUri: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
 }
@@ -194,6 +195,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const telegramOidcAuth = async (code: string, redirectUri: string) => {
+    try {
+      const res = await fetch(`${API_URL}/auth/telegram/oidc`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, redirectUri }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        return {
+          success: false,
+          error: json.error?.message || json.message || 'Telegram OpenID authentication failed',
+        };
+      }
+
+      const payload = json.data || json;
+      const receivedToken = payload.accessToken;
+
+      localStorage.setItem('sakura_token', receivedToken);
+      setToken(receivedToken);
+      setUser(payload.user);
+      setReseller(payload.reseller || null);
+
+      return { success: true };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message || 'Network error connecting to backend',
+      };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('sakura_token');
     setToken(null);
@@ -211,6 +245,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         telegramAuth,
+        telegramOidcAuth,
         logout,
         refreshProfile,
       }}

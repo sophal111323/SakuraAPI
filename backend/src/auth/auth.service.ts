@@ -252,7 +252,80 @@ export class AuthService {
 
     const tgId = dto.id.toString();
     const cleanUsername = dto.username ? `@${dto.username.replace(/^@/, '')}` : null;
-    const fullName = [dto.first_name, dto.last_name].filter(Boolean).join(' ').trim() || `Telegram User ${tgId}`;
+    const fullName =
+      [dto.first_name, dto.last_name].filter(Boolean).join(' ').trim() ||
+      `Telegram User ${tgId}`;
+
+    return this.createOrUpdateTelegramReseller({
+      tgId,
+      fullName,
+      cleanUsername,
+      photoUrl: dto.photo_url || null,
+    });
+  }
+
+  async telegramOidcLogin(code: string, redirectUri: string) {
+    const clientId =
+      this.configService.get<string>('TELEGRAM_CLIENT_ID') || '8953849304';
+    const clientSecret =
+      this.configService.get<string>('TELEGRAM_CLIENT_SECRET') ||
+      '5DBN0QMl3ic5Vv3P8znRCHbkfCxvYVNicMWvpmoC9JNdf3HxyTNaoQ';
+
+    const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+    const res = await fetch('https://oauth.telegram.org/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${credentials}`,
+      },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: redirectUri,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok || data.error || !data.id_token) {
+      throw new UnauthorizedException(
+        data.error_description || data.error || 'Failed to exchange Telegram authorization code'
+      );
+    }
+
+    // Decode id_token JWT (header.payload.signature)
+    const parts = data.id_token.split('.');
+    if (parts.length < 2) {
+      throw new UnauthorizedException('Invalid ID token received from Telegram');
+    }
+
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+    const tgId = (payload.sub || payload.id)?.toString();
+    if (!tgId) {
+      throw new UnauthorizedException('Missing Telegram ID in token');
+    }
+
+    const fullName = payload.name || `Telegram User ${tgId}`;
+    const cleanUsername = payload.preferred_username
+      ? `@${payload.preferred_username.replace(/^@/, '')}`
+      : null;
+    const photoUrl = payload.picture || null;
+
+    return this.createOrUpdateTelegramReseller({
+      tgId,
+      fullName,
+      cleanUsername,
+      photoUrl,
+    });
+  }
+
+  private async createOrUpdateTelegramReseller(params: {
+    tgId: string;
+    fullName: string;
+    cleanUsername: string | null;
+    photoUrl: string | null;
+  }) {
+    const { tgId, fullName, cleanUsername, photoUrl } = params;
 
     // Find existing user by telegramId, telegram handle, or fallback email
     let user = await this.prisma.user.findFirst({
@@ -281,16 +354,16 @@ export class AuthService {
           name: fullName,
           telegramId: tgId,
           telegram: cleanUsername || `@id${tgId}`,
-          telegramPhotoUrl: dto.photo_url || null,
+          telegramPhotoUrl: photoUrl,
           passwordHash,
           role: Role.RESELLER,
           status: UserStatus.ACTIVE,
           reseller: {
             create: {
-              companyName: `${dto.first_name}'s Store`,
+              companyName: `${fullName.split(' ')[0]}'s Store`,
               telegram: cleanUsername || `@id${tgId}`,
               telegramId: tgId,
-              telegramPhotoUrl: dto.photo_url || null,
+              telegramPhotoUrl: photoUrl,
               balance: 0.0,
               currency: 'USD',
             },
@@ -304,7 +377,7 @@ export class AuthService {
         where: { id: user.id },
         data: {
           telegramId: tgId,
-          telegramPhotoUrl: dto.photo_url || user.telegramPhotoUrl,
+          telegramPhotoUrl: photoUrl || user.telegramPhotoUrl,
           telegram: user.telegram || cleanUsername,
         },
       });
