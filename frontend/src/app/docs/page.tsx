@@ -29,9 +29,17 @@ import {
 } from 'lucide-react';
 
 export default function ApiDocsPage() {
-  const [activeLang, setActiveLang] = useState<'curl' | 'js' | 'php' | 'python'>('curl');
+  const [activeLang, setActiveLang] = useState<'curl' | 'termux' | 'js' | 'php' | 'python'>('curl');
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<string>('auth');
+
+  const langLabels: Record<string, string> = {
+    curl: 'cURL (CLI)',
+    termux: 'Termux (Android)',
+    js: 'Node.js (Axios)',
+    php: 'PHP',
+    python: 'Python (Requests)'
+  };
 
   const copyCode = (id: string, code: string) => {
     navigator.clipboard.writeText(code);
@@ -46,6 +54,14 @@ export default function ApiDocsPage() {
           return `curl -X GET https://sakuraapi.lol/api/v1/reseller/me \\
   -H "Authorization: Bearer sk_live_YOUR_API_KEY" \\
   -H "Content-Type: application/json"`;
+        }
+        if (activeLang === 'termux') {
+          return `# ក្នុង Termux (សូមដំឡើង: pkg install curl jq -y)
+API_KEY="sk_live_YOUR_API_KEY"
+
+curl -s -X GET "https://sakuraapi.lol/api/v1/reseller/me" \\
+  -H "Authorization: Bearer $API_KEY" \\
+  -H "Content-Type: application/json" | jq .`;
         }
         if (activeLang === 'js') {
           return `const axios = require('axios');
@@ -89,6 +105,19 @@ print(response.json())`;
     "userid": "1473883595",
     "serverid": "14309"
   }'`;
+        }
+        if (activeLang === 'termux') {
+          return `# ឆែកស្វែងរកឈ្មោះ In-game Name ក្នុង Termux
+API_KEY="sk_live_YOUR_API_KEY"
+
+curl -s -X POST "https://sakuraapi.lol/api/v1/games/check-id" \\
+  -H "Authorization: Bearer $API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "game": "mobile-legends",
+    "userid": "1473883595",
+    "serverid": "14309"
+  }' | jq .`;
         }
         if (activeLang === 'js') {
           return `const axios = require('axios');
@@ -158,6 +187,22 @@ print(response.json())`;
     "reseller_order_id": "ORD-20260930-001"
   }'`;
         }
+        if (activeLang === 'termux') {
+          return `# បញ្ជាទិញ Top-up ស្វ័យប្រវត្តតាម Termux Terminal
+API_KEY="sk_live_YOUR_API_KEY"
+ORDER_ID="ORD-$(date +%s)"
+
+curl -s -X POST "https://sakuraapi.lol/api/v1/orders" \\
+  -H "Authorization: Bearer $API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "game": "mobile-legends",
+    "product_code": "mlbb-86",
+    "userid": "1473883595",
+    "serverid": "14309",
+    "reseller_order_id": "'"$ORDER_ID"'"
+  }' | jq .`;
+        }
         if (activeLang === 'js') {
           return `const axios = require('axios');
 
@@ -223,6 +268,13 @@ print(response.json())`;
         if (activeLang === 'curl') {
           return `curl -X GET https://sakuraapi.lol/api/v1/games \\
   -H "Authorization: Bearer sk_live_YOUR_API_KEY"`;
+        }
+        if (activeLang === 'termux') {
+          return `# ទាញយកបញ្ជីហ្គេម & ស្តុកទំនិញក្នុង Termux
+API_KEY="sk_live_YOUR_API_KEY"
+
+curl -s -X GET "https://sakuraapi.lol/api/v1/games" \\
+  -H "Authorization: Bearer $API_KEY" | jq .`;
         }
         if (activeLang === 'js') {
           return `const axios = require('axios');
@@ -358,6 +410,7 @@ print(res.json())`;
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             {[
               { id: 'curl', label: 'cURL', badge: 'CLI / Shell' },
+              { id: 'termux', label: 'Termux', badge: 'Android CLI' },
               { id: 'js', label: 'Node.js', badge: 'Axios / Fetch' },
               { id: 'php', label: 'PHP', badge: 'cURL' },
               { id: 'python', label: 'Python', badge: 'Requests' },
@@ -367,7 +420,7 @@ print(res.json())`;
                 onClick={() => setActiveLang(lang.id as any)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 ${
                   activeLang === lang.id
-                    ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-md shadow-pink-600/30'
+                    ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-md shadow-pink-600/30 ring-1 ring-pink-400/50'
                     : 'bg-[#181135] text-zinc-400 hover:text-white hover:bg-[#23184d]'
                 }`}
               >
@@ -466,7 +519,7 @@ print(res.json())`;
 
                 <div className="space-y-2 pt-2">
                   <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span className="font-semibold text-white">កូដគំរូពិនិត្យគណនី Reseller ({activeLang})៖</span>
+                    <span className="font-semibold text-white">កូដគំរូពិនិត្យគណនី Reseller ({langLabels[activeLang]})៖</span>
                     <button
                       onClick={() => copyCode('auth', getExampleCode('auth'))}
                       className="hover:text-white transition flex items-center gap-1 text-pink-400 text-xs font-medium"
@@ -543,7 +596,7 @@ print(res.json())`;
                 {/* Code Sample */}
                 <div className="space-y-2 pt-3">
                   <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span className="font-semibold text-white">កូដគំរូ Request ({activeLang})៖</span>
+                    <span className="font-semibold text-white">កូដគំរូ Request ({langLabels[activeLang]})៖</span>
                     <button
                       onClick={() => copyCode('check-id', getExampleCode('check-id'))}
                       className="hover:text-white transition flex items-center gap-1 text-pink-400 text-xs font-medium"
@@ -648,7 +701,7 @@ print(res.json())`;
                 {/* Code Sample */}
                 <div className="space-y-2 pt-2">
                   <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span className="font-semibold text-white">កូដគំរូ Request ({activeLang})៖</span>
+                    <span className="font-semibold text-white">កូដគំរូ Request ({langLabels[activeLang]})៖</span>
                     <button
                       onClick={() => copyCode('create-order', getExampleCode('create-order'))}
                       className="hover:text-white transition flex items-center gap-1 text-pink-400 text-xs font-medium"
@@ -707,7 +760,7 @@ print(res.json())`;
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span className="font-semibold text-white">កូដគំរូ Request ({activeLang})៖</span>
+                    <span className="font-semibold text-white">កូដគំរូ Request ({langLabels[activeLang]})៖</span>
                     <button
                       onClick={() => copyCode('get-games', getExampleCode('get-games'))}
                       className="hover:text-white transition flex items-center gap-1 text-pink-400 text-xs font-medium"
