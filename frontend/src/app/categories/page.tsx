@@ -296,45 +296,55 @@ export default function CategoriesPage() {
         {selectedGame ? (
           <div className="space-y-6 animate-slide-up-1">
             {/* Top Navigation & Selected Game Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#120d26]/80 backdrop-blur-xl border border-[#2b2052] rounded-3xl p-4 sm:p-6 shadow-xl">
-              <div className="flex items-center gap-4">
+            <div className="space-y-4">
+              {/* Action Nav Row: Back Button on Left & Dashboard CTA on Right */}
+              <div className="flex items-center justify-between gap-3">
                 <button
                   onClick={() => setSelectedGame(null)}
-                  className="p-2.5 rounded-2xl bg-[#191136] hover:bg-[#25194d] border border-[#2e2158] text-zinc-300 hover:text-white transition flex items-center gap-2 text-xs font-semibold shrink-0"
+                  className="px-3.5 py-2 rounded-2xl bg-[#140e2d] hover:bg-[#201746] border border-[#2d2156] text-zinc-300 hover:text-white transition-all flex items-center gap-2 text-xs font-semibold shadow-md active:scale-95 group"
                 >
-                  <ArrowLeft className="w-4 h-4 text-pink-400" />
-                  <span>ត្រឡប់ក្រោយ (Back)</span>
+                  <ArrowLeft className="w-4 h-4 text-pink-400 group-hover:-translate-x-0.5 transition-transform" />
+                  <span>ត្រឡប់ទៅបញ្ជីហ្គេម (Back)</span>
                 </button>
 
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl p-0.5 bg-gradient-to-tr from-pink-500 via-purple-500 to-sky-400 shadow-xl shrink-0">
+                <Link
+                  href="/dashboard"
+                  className="px-4 py-2 rounded-2xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-semibold text-xs shadow-lg shadow-pink-600/25 transition-all flex items-center gap-1.5 active:scale-95 shrink-0"
+                >
+                  <span>កុម្ម៉ង់ក្នុង Dashboard</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              {/* Game Profile Hero Card (Spacious, Clean, No Wrapping Bugs) */}
+              <div className="bg-[#120d26]/90 backdrop-blur-xl border border-[#2b2052] rounded-3xl p-4 sm:p-5 shadow-2xl flex items-center gap-4 sm:gap-5">
+                {/* Game Logo */}
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-1 bg-gradient-to-tr from-pink-500 via-purple-500 to-sky-400 shadow-2xl shadow-purple-900/30 shrink-0">
                   <div className="w-full h-full bg-[#0d091e] rounded-[14px] flex items-center justify-center p-1.5 overflow-hidden">
                     <img
                       src={GAME_LOGOS[selectedGame.code] || '/games/mlbb.svg'}
                       alt={selectedGame.name}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain filter drop-shadow"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <h1 className="text-lg sm:text-2xl font-extrabold text-white">
+                {/* Game Name & Metadata */}
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-lg sm:text-2xl font-extrabold text-white tracking-tight truncate">
                     {selectedGame.name}
                   </h1>
-                  <div className="flex items-center gap-2 text-xs text-zinc-400">
-                    <span className="font-mono text-purple-300">{selectedGame.code}</span>
+                  <div className="flex items-center gap-2 flex-wrap text-xs text-zinc-400 mt-1">
+                    <span className="font-mono text-purple-300 font-semibold bg-[#1a1238] px-2.5 py-0.5 rounded-full border border-[#2e2254]">
+                      {selectedGame.code}
+                    </span>
                     <span>•</span>
-                    <span>{products.length} កញ្ចប់តម្លៃ (Items)</span>
+                    <span className="text-zinc-300 font-medium">
+                      {products.length} កញ្ចប់តម្លៃ (Items)
+                    </span>
                   </div>
                 </div>
               </div>
-
-              <Link
-                href="/dashboard"
-                className="self-start sm:self-auto px-4 py-2 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-semibold text-xs shadow-lg shadow-pink-600/25 transition flex items-center gap-1.5"
-              >
-                <span>កុម្ម៉ង់ក្នុង Dashboard</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
             </div>
 
             {/* Products Items List (Shows: Logo Package, Name Package, ID Item, Amount) */}
