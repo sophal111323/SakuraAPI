@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
+import AnimatedBackground from '@/components/AnimatedBackground';
 import { useAuth } from '@/context/AuthContext';
 import { 
   Zap, 
@@ -118,26 +119,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#080510] text-[#f1f0f7] selection:bg-pink-500 selection:text-white relative overflow-hidden">
       {/* Background Animated Video Layer */}
-      <div
-        className="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[#080510]"
-        aria-hidden="true"
-      >
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="w-full h-full object-cover object-center pointer-events-none opacity-40 sm:opacity-45"
-          tabIndex={-1}
-        >
-          <source src="/video/background.mp4" type="video/mp4" />
-        </video>
-
-        {/* Dark Purple / Sakura Overlay to ensure high contrast, readability & premium aesthetics */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#090714]/85 via-[#0d0922]/80 to-[#080510]/95" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-fuchsia-900/20 via-transparent to-[#080510]/75" />
-      </div>
+      <AnimatedBackground />
 
       {/* Navigation */}
       <Navigation />

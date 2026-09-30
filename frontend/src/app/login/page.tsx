@@ -4,28 +4,13 @@ import React from 'react';
 import Link from 'next/link';
 import { Sparkles, ChevronRight, Zap, ShieldCheck, Headphones, KeyRound } from 'lucide-react';
 import TelegramLoginWidget from '@/components/TelegramLoginWidget';
+import AnimatedBackground from '@/components/AnimatedBackground';
 
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#080510] text-[#f1f0f7] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden selection:bg-pink-500 selection:text-white">
       {/* Background Animated Video Layer */}
-      <div
-        className="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-[#080510]"
-        aria-hidden="true"
-      >
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="w-full h-full object-cover object-center pointer-events-none opacity-35"
-          tabIndex={-1}
-        >
-          <source src="/video/background.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#090714]/85 via-[#0d0922]/85 to-[#080510]/95" />
-      </div>
+      <AnimatedBackground />
 
       <div className="w-full max-w-md relative z-10 space-y-6">
         {/* Brand Header with Uploaded Logo */}
