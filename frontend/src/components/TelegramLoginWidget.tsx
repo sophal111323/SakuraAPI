@@ -21,7 +21,7 @@ export default function TelegramLoginWidget({
 
   const BOT_USERNAME = 'Sakuraapi_bot';
   const BOT_ID = '8953849304';
-  const DOMAIN = 'jasmintopup.site';
+  const DOMAIN = 'sakuraapi.lol';
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

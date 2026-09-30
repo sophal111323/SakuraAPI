@@ -47,7 +47,7 @@ export class AuthService {
     // Determine email (use provided or auto-generate based on telegram)
     const userEmail = dto.email?.trim()
       ? dto.email.toLowerCase().trim()
-      : `${strippedTg.toLowerCase()}@telegram.jasmintopup.site`;
+      : `${strippedTg.toLowerCase()}@telegram.sakuraapi.lol`;
 
     const existingEmail = await this.prisma.user.findUnique({
       where: { email: userEmail },
@@ -112,7 +112,7 @@ export class AuthService {
     const rawId = dto.email.trim();
     const withAt = rawId.startsWith('@') ? rawId : `@${rawId}`;
     const withoutAt = rawId.replace(/^@/, '');
-    const fallbackEmail = `${withoutAt.toLowerCase()}@telegram.jasmintopup.site`;
+    const fallbackEmail = `${withoutAt.toLowerCase()}@telegram.sakuraapi.lol`;
 
     // Find by Email, Telegram handle, or Telegram fallback email
     const user = await this.prisma.user.findFirst({
@@ -260,6 +260,7 @@ export class AuthService {
         OR: [
           { telegramId: tgId },
           cleanUsername ? { telegram: cleanUsername } : undefined,
+          { email: `${tgId}@telegram.sakuraapi.lol` },
           { email: `${tgId}@telegram.jasmintopup.site` },
         ].filter(Boolean) as any,
       },
@@ -268,8 +269,8 @@ export class AuthService {
 
     if (!user) {
       const email = cleanUsername
-        ? `${cleanUsername.replace('@', '').toLowerCase()}@telegram.jasmintopup.site`
-        : `${tgId}@telegram.jasmintopup.site`;
+        ? `${cleanUsername.replace('@', '').toLowerCase()}@telegram.sakuraapi.lol`
+        : `${tgId}@telegram.sakuraapi.lol`;
 
       const randomPassword = crypto.randomBytes(16).toString('hex');
       const passwordHash = await bcrypt.hash(randomPassword, 10);
