@@ -59,12 +59,12 @@ export default function Navigation() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 via-purple-500 to-pink-400 flex items-center justify-center shadow-lg shadow-purple-600/30">
-                <span className="text-white text-lg">🌸</span>
+            <Link href="/" className="flex items-center space-x-2.5 group">
+              <div className="w-9 h-9 rounded-xl p-0.5 bg-gradient-to-tr from-pink-500 via-purple-500 to-sky-400 shadow-lg shadow-purple-600/30 overflow-hidden flex items-center justify-center bg-[#0e0a1f]">
+                <img src="/logo.png" alt="SakuraAPI Logo" className="w-full h-full object-contain" />
               </div>
               <span className="font-bold text-lg tracking-tight text-white flex items-center gap-1.5">
-                Sakura<span className="text-purple-400">API</span>
+                Sakura<span className="text-pink-400">API</span>
                 {isAdmin && (
                   <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
                     Admin
