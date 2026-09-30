@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="giBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b" />
+      <stop offset="50%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <linearGradient id="primoStar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6" />
+      <stop offset="35%" stop-color="#c084fc" />
+      <stop offset="70%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#a7f3d0" />
+    </linearGradient>
+    <linearGradient id="innerStar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e0e7ff" />
+    </linearGradient>
+    <filter id="giGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Rounded Rect -->
+  <rect x="6" y="6" width="108" height="108" rx="28" fill="url(#giBg)" stroke="#818cf8" stroke-width="2.5" stroke-opacity="0.5" />
+
+  <!-- Celestial Glow Ring -->
+  <circle cx="60" cy="52" r="35" fill="#4338ca" fill-opacity="0.3" filter="url(#giGlow)" />
+  <circle cx="60" cy="52" r="32" stroke="#c084fc" stroke-width="1.2" stroke-dasharray="3 3" stroke-opacity="0.6" fill="none" />
+
+  <!-- Primogem 4-Pointed Star -->
+  <path d="M60 18 Q60 52 26 52 Q60 52 60 86 Q60 52 94 52 Q60 52 60 18 Z" fill="url(#primoStar)" filter="url(#giGlow)" />
+  <!-- Center Highlight Star -->
+  <path d="M60 32 Q60 52 40 52 Q60 52 60 72 Q60 52 80 52 Q60 52 60 32 Z" fill="url(#innerStar)" />
+
+  <!-- Tiny Accent Stars -->
+  <circle cx="36" cy="30" r="1.5" fill="#fff" />
+  <circle cx="84" cy="30" r="1.5" fill="#fff" />
+  <circle cx="60" cy="52" r="3" fill="#38bdf8" />
+
+  <!-- GENSHIN Badge -->
+  <rect x="18" y="86" width="84" height="18" rx="9" fill="#0f172a" stroke="url(#primoStar)" stroke-width="1.5" />
+  <text x="60" y="99" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="9" fill="#e0e7ff" text-anchor="middle" letter-spacing="1">GENSHIN</text>
+</svg>

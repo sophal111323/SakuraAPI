@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="hokBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#19062b" />
+      <stop offset="50%" stop-color="#2d0c4e" />
+      <stop offset="100%" stop-color="#0e021a" />
+    </linearGradient>
+    <linearGradient id="hokGold" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="50%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#fef08a" />
+    </linearGradient>
+    <filter id="hokGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <rect x="6" y="6" width="108" height="108" rx="28" fill="url(#hokBg)" stroke="#c084fc" stroke-width="2.5" stroke-opacity="0.45" />
+
+  <circle cx="60" cy="52" r="34" fill="#a855f7" fill-opacity="0.2" filter="url(#hokGlow)" />
+
+  <!-- King's Imperial Crown -->
+  <path d="M30 68 L36 38 L48 50 L60 26 L72 50 L84 38 L90 68 Z" fill="url(#hokGold)" filter="url(#hokGlow)" />
+  <circle cx="60" cy="24" r="3.5" fill="#f43f5e" />
+  <circle cx="36" cy="36" r="2.5" fill="#38bdf8" />
+  <circle cx="84" cy="36" r="2.5" fill="#38bdf8" />
+  <ellipse cx="60" cy="56" rx="6" ry="8" fill="#f43f5e" stroke="#fff" stroke-width="1.2" />
+
+  <!-- Bottom Crown Band -->
+  <rect x="30" y="66" width="60" height="7" rx="3.5" fill="#b45309" stroke="#fbbf24" stroke-width="1.5" />
+
+  <!-- Badge -->
+  <rect x="18" y="86" width="84" height="18" rx="9" fill="#170326" stroke="url(#hokGold)" stroke-width="1.5" />
+  <text x="60" y="99" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="8.5" fill="#fde68a" text-anchor="middle" letter-spacing="1">HONOR OF KINGS</text>
+</svg>

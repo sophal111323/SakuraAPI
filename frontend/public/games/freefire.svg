@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="ffBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b0707" />
+      <stop offset="50%" stop-color="#240505" />
+      <stop offset="100%" stop-color="#0e0202" />
+    </linearGradient>
+    <linearGradient id="ffFlame" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="45%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#fde047" />
+    </linearGradient>
+    <linearGradient id="ffGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <filter id="ffGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Rounded Rect -->
+  <rect x="6" y="6" width="108" height="108" rx="28" fill="url(#ffBg)" stroke="#f97316" stroke-width="2.5" stroke-opacity="0.45" />
+
+  <!-- Fiery Aura -->
+  <circle cx="60" cy="52" r="36" fill="#f97316" fill-opacity="0.25" filter="url(#ffGlow)" />
+
+  <!-- Stylized Flame Dagger / Wing -->
+  <path d="M60 18 C65 28 78 35 78 48 C78 58 70 65 60 78 C50 65 42 58 42 48 C42 35 55 28 60 18 Z" fill="url(#ffFlame)" filter="url(#ffGlow)" />
+  <path d="M60 30 C63 36 70 42 70 50 C70 56 64 62 60 70 C56 62 50 56 50 50 C50 42 57 36 60 30 Z" fill="#fff" fill-opacity="0.9" />
+
+  <!-- Side Blade Flames -->
+  <path d="M34 40 C42 45 46 54 44 64 C36 60 30 52 34 40 Z" fill="url(#ffFlame)" />
+  <path d="M86 40 C78 45 74 54 76 64 C84 60 90 52 86 40 Z" fill="url(#ffFlame)" />
+
+  <!-- FREE FIRE Text Badge -->
+  <rect x="18" y="86" width="84" height="18" rx="9" fill="#180404" stroke="url(#ffFlame)" stroke-width="1.5" />
+  <text x="60" y="99" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="9" fill="#fed7aa" text-anchor="middle" letter-spacing="1">FREE FIRE</text>
+</svg>
