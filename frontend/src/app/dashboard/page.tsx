@@ -293,34 +293,38 @@ export default function DashboardPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative">
         {/* Dashboard Title & Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-slide-up-1">
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl font-bold tracking-tight text-white">Reseller Dashboard</h1>
-              <span className="flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 animate-slide-up-1">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+                ផ្ទាំងគ្រប់គ្រង Reseller (Dashboard)
+              </h1>
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 shadow-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span>Live Real-Time Sync</span>
+                <span>ទិន្នន័យផ្សាយផ្ទាល់ (Live Sync)</span>
               </span>
             </div>
-            <p className="text-xs text-zinc-400 mt-1">
-              Real-time monitoring of your balance, automated orders, and API request usage.
+            <p className="text-xs text-zinc-400">
+              តាមដានសមតុល្យកាបូបទឹកប្រាក់ ការបញ្ជាទិញស្វ័យប្រវត្ត និងការប្រើប្រាស់ API ជាក់ស្តែង។
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          {/* Redesigned Action Bar */}
+          <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
             <button
               onClick={() => {
                 setCheckIdModalOpen(true);
                 setIdCheckResult(null);
               }}
-              className="px-3.5 py-1.5 rounded-xl bg-[#1d163e] hover:bg-[#281f54] border border-[#3b2d6d] text-purple-300 text-xs font-semibold transition flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-[#171032] hover:bg-[#251b50] border border-[#3c2a74] text-purple-200 hover:text-white text-xs font-semibold transition-all duration-200 shadow-sm flex items-center gap-2 whitespace-nowrap active:scale-95"
             >
-              <UserCheck className="w-3.5 h-3.5 text-purple-400" />
-              <span>Check Game ID</span>
+              <UserCheck className="w-4 h-4 text-purple-400" />
+              <span>ឆែកឈ្មោះ Player ID</span>
             </button>
+
             <button
               onClick={() => {
                 setOrderModalOpen(true);
@@ -328,18 +332,20 @@ export default function DashboardPage() {
                 setOrderError(null);
                 setIdCheckResult(null);
               }}
-              className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition shadow-md shadow-purple-600/30 flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white text-xs font-bold transition-all duration-200 shadow-lg shadow-pink-600/30 flex items-center gap-2 whitespace-nowrap active:scale-95"
             >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>Create Top-up Order</span>
+              <PlusCircle className="w-4 h-4 text-white" />
+              <span>បញ្ជាទិញ Top-up</span>
             </button>
+
             <button
               onClick={fetchDashboard}
               disabled={loading}
-              className="px-3 py-1.5 rounded-xl bg-[#16122d] hover:bg-[#201844] border border-[#2d2454] text-xs text-zinc-300 flex items-center gap-1.5 transition disabled:opacity-50"
+              title="ទាញយកទិន្នន័យថ្មី"
+              className="px-3 py-2 rounded-xl bg-[#130d28] hover:bg-[#201642] border border-[#2f2258] text-xs font-medium text-zinc-300 hover:text-white flex items-center gap-1.5 transition-all duration-200 shadow-sm disabled:opacity-50 active:scale-95 whitespace-nowrap"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-purple-400' : ''}`} />
-              <span>Refresh</span>
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-pink-400' : 'text-zinc-400'}`} />
+              <span className="hidden sm:inline">Refresh</span>
             </button>
           </div>
         </div>
@@ -349,7 +355,7 @@ export default function DashboardPage() {
           {/* Card 1: Main Balance */}
           <div className="bg-gradient-to-br from-[#1a1238] via-[#140e2b] to-[#100b22] border-2 border-purple-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-purple-300">Available Reseller Balance</span>
+              <span className="text-xs font-medium text-purple-300">សមតុល្យដែលអាចប្រើបាន (Balance)</span>
               <div className="w-8 h-8 rounded-xl bg-purple-500/20 flex items-center justify-center">
                 <Wallet className="w-4 h-4 text-purple-400" />
               </div>
@@ -360,12 +366,12 @@ export default function DashboardPage() {
                 <span className="text-xs font-semibold text-purple-400">{data?.currency || 'USD'}</span>
               </div>
               <p className="text-[11px] text-zinc-400 mt-1">
-                Zero-loss atomic reserve with automatic provider refund
+                ប្រព័ន្ធសុវត្ថិភាពខ្ពស់ បង្វិលសងទឹកប្រាក់វិញស្វ័យប្រវត្តិ ១០០% ប្រសិនបើមានបញ្ហា
               </p>
             </div>
             <div className="mt-5 pt-4 border-t border-[#291f4a] flex items-center justify-between text-xs">
               <Link href="/funding" className="text-purple-300 hover:text-white flex items-center gap-1 transition font-medium">
-                <span>View Funding Ledger</span>
+                <span>ប្រវត្តិបញ្ចូលលុយ (Funding Ledger)</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -374,7 +380,7 @@ export default function DashboardPage() {
           {/* Card 2: Total Spent */}
           <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl p-6 shadow-lg space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-zinc-400">Total Spent</span>
+              <span className="text-xs font-medium text-zinc-400">ទឹកប្រាក់ចំណាយសរុប (Total Spent)</span>
               <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-emerald-400" />
               </div>
@@ -384,11 +390,11 @@ export default function DashboardPage() {
                 ${parseFloat(metrics.totalSpent || '0.00').toFixed(2)}
               </div>
               <p className="text-[11px] text-zinc-400 mt-1">
-                From {metrics.successfulOrders} successful fulfillment orders
+                ពីការបញ្ជាទិញជោគជ័យសរុប {metrics.successfulOrders} Orders
               </p>
             </div>
             <div className="pt-2 border-t border-[#221c3b] flex items-center justify-between text-xs text-zinc-400">
-              <span>Today's Spent:</span>
+              <span>ចំណាយថ្ងៃនេះ៖</span>
               <span className="font-semibold text-emerald-400">${parseFloat(metrics.todaySpent || '0.00').toFixed(2)}</span>
             </div>
           </div>
@@ -396,7 +402,7 @@ export default function DashboardPage() {
           {/* Card 3: Total Orders & API Activity */}
           <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl p-6 shadow-lg space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-zinc-400">Total Orders Placed</span>
+              <span className="text-xs font-medium text-zinc-400">ការបញ្ជាទិញសរុប (Total Orders)</span>
               <div className="w-8 h-8 rounded-xl bg-indigo-500/10 flex items-center justify-center">
                 <ShoppingBag className="w-4 h-4 text-indigo-400" />
               </div>
@@ -406,11 +412,11 @@ export default function DashboardPage() {
                 {metrics.totalOrders.toLocaleString()}
               </div>
               <p className="text-[11px] text-zinc-400 mt-1">
-                {metrics.todayOrders} placed today
+                {metrics.todayOrders} បានកុម្ម៉ង់ថ្ងៃនេះ
               </p>
             </div>
             <div className="pt-2 border-t border-[#221c3b] flex items-center justify-between text-xs text-zinc-400">
-              <span>API Gateway Calls:</span>
+              <span>ការហៅ API Gateway៖</span>
               <span className="font-mono text-purple-300 font-semibold">{metrics.totalApiRequests.toLocaleString()}</span>
             </div>
           </div>
@@ -424,7 +430,7 @@ export default function DashboardPage() {
                 <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               </div>
               <div>
-                <div className="text-xs text-zinc-400">Successful Orders</div>
+                <div className="text-xs text-zinc-400">ការបញ្ជាទិញជោគជ័យ</div>
                 <div className="text-xl font-bold text-white">{metrics.successfulOrders}</div>
               </div>
             </div>
@@ -439,12 +445,12 @@ export default function DashboardPage() {
                 <Clock className="w-5 h-5 text-amber-400" />
               </div>
               <div>
-                <div className="text-xs text-zinc-400">Pending Orders</div>
+                <div className="text-xs text-zinc-400">កំពុងដំណើរការ (Pending)</div>
                 <div className="text-xl font-bold text-white">{metrics.pendingOrders}</div>
               </div>
             </div>
             <span className="text-xs font-medium text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded">
-              Processing
+              ដំណើរការ
             </span>
           </div>
 
@@ -454,12 +460,12 @@ export default function DashboardPage() {
                 <XCircle className="w-5 h-5 text-red-400" />
               </div>
               <div>
-                <div className="text-xs text-zinc-400">Failed / Refunded</div>
+                <div className="text-xs text-zinc-400">បរាជ័យ / បានបង្វិលសង</div>
                 <div className="text-xl font-bold text-white">{metrics.failedOrders}</div>
               </div>
             </div>
             <span className="text-xs font-medium text-red-400 bg-red-500/10 px-2 py-0.5 rounded">
-              Zero Loss
+              គ្មានការខាតបង់
             </span>
           </div>
         </div>
@@ -468,23 +474,23 @@ export default function DashboardPage() {
         <div className="bg-[#130f26] border border-[#2b2252] rounded-2xl overflow-hidden shadow-xl animate-slide-up-4">
           <div className="p-5 border-b border-[#221c3b] flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-bold text-white">Recent Top-up Orders</h2>
-              <p className="text-[11px] text-zinc-400">Latest transactions through SakuraAPI</p>
+              <h2 className="text-sm font-bold text-white">ប្រវត្តិបញ្ជាទិញថ្មីៗ (Recent Orders)</h2>
+              <p className="text-[11px] text-zinc-400">រាល់ប្រតិបត្តិការចុងក្រោយបង្អស់តាមរយៈ SakuraAPI</p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleSyncOrders}
                 disabled={syncingOrders}
-                className="px-2.5 py-1 rounded-lg bg-[#181330] hover:bg-[#251d4c] border border-[#2d2454] text-xs text-purple-300 flex items-center gap-1 transition"
+                className="px-2.5 py-1.5 rounded-lg bg-[#181330] hover:bg-[#251d4c] border border-[#2d2454] text-xs text-purple-300 flex items-center gap-1 transition"
               >
                 <RotateCw className={`w-3.5 h-3.5 ${syncingOrders ? 'animate-spin' : ''}`} />
-                <span>Sync Pending</span>
+                <span>ឆែកស្ថានភាព Pending</span>
               </button>
               <Link
                 href="/orders"
                 className="text-xs font-medium text-purple-400 hover:text-purple-300 flex items-center gap-1 transition"
               >
-                <span>View All</span>
+                <span>មើលទាំងអស់</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -494,13 +500,13 @@ export default function DashboardPage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-[#100d1e] text-zinc-400 uppercase text-[10px] tracking-wider border-b border-[#221c3b]">
                 <tr>
-                  <th className="py-3 px-4">Order ID</th>
-                  <th className="py-3 px-4">Game</th>
-                  <th className="py-3 px-4">Product</th>
-                  <th className="py-3 px-4">Player ID</th>
-                  <th className="py-3 px-4">Amount</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Time</th>
+                  <th className="py-3 px-4">លេខកូដ Order</th>
+                  <th className="py-3 px-4">ហ្គេម</th>
+                  <th className="py-3 px-4">កញ្ចប់ទំនិញ</th>
+                  <th className="py-3 px-4">Player ID / UID</th>
+                  <th className="py-3 px-4">តម្លៃ</th>
+                  <th className="py-3 px-4">ស្ថានភាព</th>
+                  <th className="py-3 px-4">ពេលវេលា</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1e1738]">
@@ -522,7 +528,7 @@ export default function DashboardPage() {
                               : 'bg-red-500/15 text-red-400 border border-red-500/30'
                           }`}
                         >
-                          {ord.status}
+                          {ord.status === 'SUCCESS' ? 'ជោគជ័យ' : ord.status === 'PENDING' ? 'កំពុងដំណើរការ' : 'បរាជ័យ'}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-zinc-500">
@@ -533,7 +539,7 @@ export default function DashboardPage() {
                 ) : (
                   <tr>
                     <td colSpan={7} className="py-8 text-center text-zinc-500">
-                      No orders placed yet. Start with our API or catalog.
+                      មិនទាន់មានការបញ្ជាទិញនៅឡើយទេ។ ចាប់ផ្ដើមជាមួយ API ឬ បញ្ជាទិញឥឡូវនេះ!
                     </td>
                   </tr>
                 )}
@@ -549,7 +555,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between pb-3 border-b border-[#221c3b]">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <PlusCircle className="w-5 h-5 text-purple-400" />
-                  <span>Create Live Top-up Order</span>
+                  <span>បង្កើតការបញ្ជាទិញ Top-up (Create Order)</span>
                 </h3>
                 <button
                   onClick={() => setOrderModalOpen(false)}
@@ -574,16 +580,16 @@ export default function DashboardPage() {
                       {orderSuccess.status === 'SUCCESS' && <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
                       {orderSuccess.status === 'PENDING' && <Clock className="w-5 h-5 text-amber-400" />}
                       {orderSuccess.status === 'FAILED' && <XCircle className="w-5 h-5 text-red-400" />}
-                      <span>Order Processed: {orderSuccess.status}</span>
+                      <span>ស្ថានភាពការបញ្ជាទិញ៖ {orderSuccess.status === 'SUCCESS' ? 'ជោគជ័យ' : orderSuccess.status === 'PENDING' ? 'កំពុងដំណើរការ' : 'បរាជ័យ'}</span>
                     </div>
                     <div className="text-xs text-zinc-300 space-y-1">
-                      <div>SakuraAPI Order ID: <strong className="font-mono text-white">{orderSuccess.order_id}</strong></div>
-                      <div>Amount: <strong className="text-emerald-400">${orderSuccess.amount}</strong></div>
+                      <div>លេខសម្គាល់ SakuraAPI Order៖ <strong className="font-mono text-white">{orderSuccess.order_id}</strong></div>
+                      <div>តម្លៃ៖ <strong className="text-emerald-400">${orderSuccess.amount}</strong></div>
                       {orderSuccess.provider_order_id && (
-                        <div>Provider Ref: <span className="font-mono text-purple-300">{orderSuccess.provider_order_id}</span></div>
+                        <div>កូដយោង Provider Ref៖ <span className="font-mono text-purple-300">{orderSuccess.provider_order_id}</span></div>
                       )}
                       {orderSuccess.refunded && (
-                        <div className="text-amber-400 font-semibold">✓ Balance immediately refunded in full.</div>
+                        <div className="text-amber-400 font-semibold">✓ ទឹកប្រាក់ត្រូវបានបង្វិលសងចូលគណនីវិញ ១០០%។</div>
                       )}
                     </div>
                   </div>
@@ -595,7 +601,7 @@ export default function DashboardPage() {
                     }}
                     className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition"
                   >
-                    Done
+                    រួចរាល់ (Done)
                   </button>
                 </div>
               ) : (
@@ -607,7 +613,7 @@ export default function DashboardPage() {
                   )}
 
                   <div>
-                    <label className="block text-zinc-300 font-medium mb-1.5">Game Category</label>
+                    <label className="block text-zinc-300 font-medium mb-1.5">ប្រភេទហ្គេម (Game)</label>
                     <select
                       value={formGame}
                       onChange={(e) => {
@@ -629,7 +635,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div>
-                    <label className="block text-zinc-300 font-medium mb-1.5">Product Denomination</label>
+                    <label className="block text-zinc-300 font-medium mb-1.5">កញ្ចប់ពេជ្រ / UC (Product)</label>
                     <select
                       value={formProduct}
                       onChange={(e) => setFormProduct(e.target.value)}
@@ -645,11 +651,11 @@ export default function DashboardPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-zinc-300 font-medium mb-1.5">Player User ID / UID</label>
+                      <label className="block text-zinc-300 font-medium mb-1.5">User ID / Player ID របស់អ្នកលេង</label>
                       <input
                         type="text"
                         required
-                        placeholder="e.g. 12345678"
+                        placeholder="ឧ. 1473883595"
                         value={formPlayerId}
                         onChange={(e) => setFormPlayerId(e.target.value)}
                         className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b0914] border border-[#2d2454] text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 transition"
@@ -659,12 +665,12 @@ export default function DashboardPage() {
                     {selectedGameObj.requiresServerId && (
                       <div>
                         <label className="block text-zinc-300 font-medium mb-1.5">
-                          {selectedGameObj.serverLabel || 'Server ID'}
+                          {selectedGameObj.serverLabel || 'Server ID / Zone ID'}
                         </label>
                         <input
                           type="text"
                           required
-                          placeholder="Zone/Server ID"
+                          placeholder="Zone ID (ឧ. 14309)"
                           value={formServerId}
                           onChange={(e) => {
                             setFormServerId(e.target.value);
@@ -681,7 +687,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] text-zinc-400 flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Instant Player ID Validator</span>
+                        <span>ផ្ទៀងផ្ទាត់ឈ្មោះ In-game Name ស្វ័យប្រវត្តិ</span>
                       </span>
                       <button
                         type="button"
@@ -692,12 +698,12 @@ export default function DashboardPage() {
                         {checkingId ? (
                           <>
                             <Loader2 className="w-3 h-3 animate-spin text-purple-400" />
-                            <span>Verifying...</span>
+                            <span>កំពុងពិនិត្យ...</span>
                           </>
                         ) : (
                           <>
                             <UserCheck className="w-3 h-3 text-purple-400" />
-                            <span>Check Name</span>
+                            <span>ឆែកឈ្មោះ</span>
                           </>
                         )}
                       </button>
@@ -720,7 +726,7 @@ export default function DashboardPage() {
                           {idCheckResult.valid ? (
                             <>
                               <div className="font-bold text-white flex items-center gap-1.5 flex-wrap">
-                                <span>Player:</span>
+                                <span>ឈ្មោះតួអង្គ (IGN)៖</span>
                                 <span className="text-emerald-300 font-mono text-sm underline decoration-emerald-500/50">
                                   {idCheckResult.username}
                                 </span>
@@ -731,11 +737,11 @@ export default function DashboardPage() {
                                 )}
                               </div>
                               <div className="text-[11px] text-emerald-400/80">
-                                ✓ Verified successfully via upstream API
+                                ✓ បានផ្ទៀងផ្ទាត់ត្រឹមត្រូវពី Server ហ្គេម
                               </div>
                             </>
                           ) : (
-                            <div>{idCheckResult.message || 'Player ID not found or server invalid'}</div>
+                            <div>{idCheckResult.message || 'រកមិនឃើញ Player ID ឬ Zone ID មិនត្រឹមត្រូវ'}</div>
                           )}
                         </div>
                       </div>
@@ -744,7 +750,7 @@ export default function DashboardPage() {
 
                   <div>
                     <label className="block text-zinc-300 font-medium mb-1.5">
-                      Reseller Order Ref <span className="text-zinc-500 font-normal">(Idempotency Key)</span>
+                      លេខសម្គាល់ Order ផ្ទាល់ខ្លួន <span className="text-zinc-500 font-normal">(Reseller Ref / Idempotency)</span>
                     </label>
                     <input
                       type="text"
@@ -758,17 +764,17 @@ export default function DashboardPage() {
                     <button
                       type="submit"
                       disabled={orderSubmitting}
-                      className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 disabled:opacity-50"
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white font-bold text-xs transition-all shadow-lg shadow-pink-600/30 flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       {orderSubmitting ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Reserving Balance & Dispatching Order...</span>
+                          <span>កំពុងកាត់ប្រាក់ & បញ្ជូនការបញ្ជាទិញ...</span>
                         </>
                       ) : (
                         <>
                           <Send className="w-3.5 h-3.5" />
-                          <span>Submit Game Top-up Order</span>
+                          <span>បញ្ជាក់ការបញ្ជាទិញ Top-up ភ្លាមៗ</span>
                         </>
                       )}
                     </button>
@@ -786,7 +792,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between pb-3 border-b border-[#221c3b]">
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <UserCheck className="w-5 h-5 text-purple-400" />
-                  <span>Validate Game Player ID</span>
+                  <span>ផ្ទៀងផ្ទាត់ Player ID របស់តួអង្គហ្គេម</span>
                 </h3>
                 <button
                   onClick={() => setCheckIdModalOpen(false)}
@@ -798,7 +804,7 @@ export default function DashboardPage() {
 
               <div className="space-y-4 text-xs">
                 <div>
-                  <label className="block text-zinc-300 font-medium mb-1.5">Game</label>
+                  <label className="block text-zinc-300 font-medium mb-1.5">ហ្គេម (Game)</label>
                   <select
                     value={formGame}
                     onChange={(e) => {
@@ -817,10 +823,10 @@ export default function DashboardPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-zinc-300 font-medium mb-1.5">User ID / Player ID</label>
+                    <label className="block text-zinc-300 font-medium mb-1.5">User ID / Player ID របស់អ្នកលេង</label>
                     <input
                       type="text"
-                      placeholder="e.g. 12345678"
+                      placeholder="ឧ. 1473883595"
                       value={formPlayerId}
                       onChange={(e) => {
                         setFormPlayerId(e.target.value);
@@ -833,11 +839,11 @@ export default function DashboardPage() {
                   {selectedGameObj.requiresServerId && (
                     <div>
                       <label className="block text-zinc-300 font-medium mb-1.5">
-                        {selectedGameObj.serverLabel || 'Server ID'}
+                        {selectedGameObj.serverLabel || 'Server ID / Zone ID'}
                       </label>
                       <input
                         type="text"
-                        placeholder="Zone ID"
+                        placeholder="Zone ID (ឧ. 14309)"
                         value={formServerId}
                         onChange={(e) => {
                           setFormServerId(e.target.value);
@@ -853,17 +859,17 @@ export default function DashboardPage() {
                   type="button"
                   onClick={handleCheckGameId}
                   disabled={checkingId || !formPlayerId.trim()}
-                  className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs transition shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {checkingId ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Validating In-game Player ID...</span>
+                      <span>កំពុងស្វែងរកឈ្មោះតួអង្គ...</span>
                     </>
                   ) : (
                     <>
                       <Search className="w-4 h-4" />
-                      <span>Check In-game Name</span>
+                      <span>ឆែកស្វែងរកឈ្មោះ In-game Name</span>
                     </>
                   )}
                 </button>
@@ -885,7 +891,7 @@ export default function DashboardPage() {
                       {idCheckResult.valid ? (
                         <>
                           <div className="font-bold text-white flex items-center gap-2 flex-wrap text-sm">
-                            <span>In-game Name:</span>
+                            <span>ឈ្មោះតួអង្គ (IGN)៖</span>
                             <span className="text-emerald-300 font-mono underline decoration-emerald-500/50">
                               {idCheckResult.username}
                             </span>
@@ -896,19 +902,19 @@ export default function DashboardPage() {
                             )}
                           </div>
                           <div className="text-[11px] text-zinc-400">
-                            Game: {idCheckResult.gameTitle || formGame} • User ID: {formPlayerId}
+                            ហ្គេម: {idCheckResult.gameTitle || formGame} • User ID: {formPlayerId}
                           </div>
                         </>
                       ) : (
-                        <div className="font-medium">{idCheckResult.message || 'Player ID not found or server invalid'}</div>
+                        <div className="font-medium">{idCheckResult.message || 'រកមិនឃើញ Player ID ឬ Zone ID មិនត្រឹមត្រូវ'}</div>
                       )}
                     </div>
                   </div>
                 )}
 
                 <div className="pt-2 border-t border-[#1e1738] text-[11px] text-zinc-500 flex items-center justify-between">
-                  <span>API: <code>POST /api/v1/games/check-id</code></span>
-                  <span>Requires Bearer API Key</span>
+                  <span>API Endpoint: <code>POST /api/v1/games/check-id</code></span>
+                  <span>Bearer Token Auth</span>
                 </div>
               </div>
             </div>
