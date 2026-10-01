@@ -258,7 +258,7 @@ export class OrdersService {
     // 10. Step 2: Dispatch order to upstream SoraTopup API
     const providerResult = await this.soraTopupService.createTopupOrder({
       gameCode: game.code,
-      productCode: product.code,
+      productCode: product.providerProductId || product.code,
       playerId: cleanPlayerId,
       serverId: cleanServerId || undefined,
       partnerOrderId: createdOrder.orderNumber,

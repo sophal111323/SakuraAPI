@@ -16,18 +16,44 @@ export class SoraTopupService {
 
   constructor(private readonly configService: ConfigService) {
     this.baseUrl = this.configService.get<string>('SORATOPUP_BASE_URL') || 'https://soratopup.com/api/v1';
-    this.apiKey = this.configService.get<string>('SORATOPUP_API_KEY') || '';
-    // Enable simulation sandbox if key is empty or dummy for local testing
+    this.apiKey = this.configService.get<string>('SORATOPUP_API_KEY') || 'sk_ad0001261f143a7087c74da6d726307b9df9a2fb81cd9399';
     this.isMockMode = !this.apiKey || this.apiKey.includes('dummy') || this.apiKey.includes('your_');
     if (this.isMockMode) {
       this.logger.warn('⚠️ SoraTopup API running in SANDBOX SIMULATION mode for local development.');
     } else {
-      this.logger.log(`✓ SoraTopup API live client configured: ${this.baseUrl}`);
+      this.logger.log(`✓ SoraTopup API live client configured: ${this.baseUrl} with active API Key`);
     }
   }
 
   /**
+   * Normalize internal game codes to SoraTopup provider codes
+   */
+  private mapGameCode(code: string): string {
+    const clean = code.toLowerCase().trim();
+    const map: Record<string, string> = {
+      'free-fire': 'ff',
+      'freefire': 'ff',
+      'ff': 'ff',
+      'free-fire-id': 'ffid',
+      'mobile-legends': 'ml',
+      'mobilelegends': 'ml',
+      'mlbb': 'ml',
+      'ml': 'ml',
+      'pubg-mobile': 'pubgm',
+      'pubgm': 'pubgm',
+      'genshin-impact': 'genshinimpactglobal2',
+      'genshin': 'genshinimpactglobal2',
+      'honor-of-kings': 'hok',
+      'hok': 'hok',
+      'arena-of-valor': 'arenaofvalorglobal',
+      'aov': 'arenaofvalorglobal',
+    };
+    return map[clean] || clean;
+  }
+
+  /**
    * Dispatches a game top-up order to SoraTopup API
+   * Endpoint: POST https://soratopup.com/api/v1/order
    */
   async createTopupOrder(request: ProviderOrderRequest): Promise<ProviderOrderResponse> {
     if (this.isMockMode) {
@@ -36,57 +62,68 @@ export class SoraTopupService {
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
 
-      // SoraTopup standard endpoint adapter
-      const endpoint = `${this.baseUrl}/orders`;
+      const endpoint = `${this.baseUrl}/order`;
+      const providerGameCode = this.mapGameCode(request.gameCode);
+
+      // Build payload matching SoraTopup's dynamic field requirements
+      const payload: Record<string, any> = {
+        game: providerGameCode,
+        code: request.productCode,
+        idempotency_key: request.partnerOrderId,
+        playerId: request.playerId,
+      };
+
+      if (request.serverId) {
+        payload.serverId = request.serverId;
+      }
+
+      this.logger.log(`Dispatching order to SoraTopup: ${JSON.stringify(payload)}`);
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.apiKey}`,
           'Accept': 'application/json',
+          'Idempotency-Key': request.partnerOrderId,
         },
-        body: JSON.stringify({
-          game: request.gameCode,
-          product: request.productCode,
-          player_id: request.playerId,
-          server_id: request.serverId,
-          partner_order_id: request.partnerOrderId,
-        }),
+        body: JSON.stringify(payload),
         signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
       const json = await response.json();
 
-      if (!response.ok) {
-        this.logger.error(`SoraTopup API Error (${response.status}): ${JSON.stringify(json)}`);
+      if (!response.ok || json.ok === false) {
+        this.logger.error(`SoraTopup Order Error (${response.status}): ${JSON.stringify(json)}`);
         return {
           success: false,
           status: 'FAILED',
-          message: json.message || json.error?.message || `Provider returned HTTP ${response.status}`,
+          message: json.msg || json.message || json.error || `Provider error: ${response.status}`,
           rawData: json,
         };
       }
 
-      const providerOrderId = json.data?.order_id || json.order_id || json.id;
-      const statusRaw = (json.data?.status || json.status || 'PENDING').toUpperCase();
+      // Successful order response
+      const providerOrderId = json.refid || json.ref || json.orderId || json.data?.order_id || json.id;
+      const statusRaw = (json.status || json.running || json.data?.status || 'PENDING').toUpperCase();
       const status = statusRaw === 'SUCCESS' ? 'SUCCESS' : statusRaw === 'FAILED' ? 'FAILED' : 'PENDING';
 
       return {
         success: status !== 'FAILED',
         providerOrderId: providerOrderId ? String(providerOrderId) : undefined,
         status,
-        message: json.message || 'Order dispatched to SoraTopup successfully',
+        message: json.msg || json.message || 'Order placed successfully on SoraTopup',
         rawData: json,
       };
     } catch (err: any) {
-      this.logger.error(`SoraTopup Network / Exception: ${err.message}`);
+      this.logger.error(`SoraTopup Order Exception: ${err.message}`);
       if (err.name === 'AbortError') {
         return {
           success: false,
-          status: 'PENDING', // If timed out, treat as pending to avoid premature double charges
+          status: 'PENDING',
           message: 'Upstream provider timed out. Order is queued for status verification.',
         };
       }
@@ -100,10 +137,10 @@ export class SoraTopupService {
 
   /**
    * Checks the status of an existing order from SoraTopup
+   * Endpoint: GET https://soratopup.com/api/v1/order?ref=<code>
    */
   async checkOrderStatus(providerOrderId: string): Promise<ProviderStatusResponse> {
     if (this.isMockMode) {
-      // Simulate successful confirmation
       return {
         status: 'SUCCESS',
         message: 'Order fulfilled successfully (Sandbox simulation)',
@@ -111,7 +148,7 @@ export class SoraTopupService {
     }
 
     try {
-      const endpoint = `${this.baseUrl}/orders/${encodeURIComponent(providerOrderId)}`;
+      const endpoint = `${this.baseUrl}/order?ref=${encodeURIComponent(providerOrderId)}`;
       const response = await fetch(endpoint, {
         method: 'GET',
         headers: {
@@ -121,20 +158,20 @@ export class SoraTopupService {
       });
 
       const json = await response.json();
-      if (!response.ok) {
+      if (!response.ok || json.ok === false) {
         return {
           status: 'FAILED',
-          message: json.message || 'Failed to check order status',
+          message: json.msg || json.message || 'Failed to check order status',
           rawData: json,
         };
       }
 
-      const statusRaw = (json.data?.status || json.status || 'PENDING').toUpperCase();
-      const status = statusRaw === 'SUCCESS' ? 'SUCCESS' : statusRaw === 'FAILED' ? 'FAILED' : 'PENDING';
+      const statusRaw = (json.status || json.running || json.data?.status || 'PENDING').toUpperCase();
+      const status = statusRaw === 'SUCCESS' ? 'SUCCESS' : (statusRaw === 'FAILED' || statusRaw === 'CANCELLED' || statusRaw === 'REJECTED') ? 'FAILED' : 'PENDING';
 
       return {
         status,
-        message: json.message,
+        message: json.msg || json.message || 'Order status checked',
         rawData: json,
       };
     } catch (err: any) {
@@ -147,6 +184,7 @@ export class SoraTopupService {
 
   /**
    * Gets current reseller account balance at SoraTopup
+   * Endpoint: GET https://soratopup.com/api/v1/balance
    */
   async getProviderBalance(): Promise<ProviderBalanceResponse> {
     if (this.isMockMode) {
@@ -158,14 +196,60 @@ export class SoraTopupService {
       const response = await fetch(endpoint, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
+          'Accept': 'application/json',
+        },
+      });
+
+      const json = await response.json();
+      const bal = json.balance !== undefined ? json.balance : (json.data?.balance || 0);
+      const curr = json.currency || json.data?.currency || 'USD';
+      return { balance: parseFloat(bal), currency: curr };
+    } catch (err: any) {
+      this.logger.error(`Error fetching SoraTopup balance: ${err.message}`);
+      return { balance: 0, currency: 'USD' };
+    }
+  }
+
+  /**
+   * Fetch full game catalogue from SoraTopup
+   * Endpoint: GET https://soratopup.com/api/v1/catalogue
+   */
+  async getCatalogue(): Promise<any[]> {
+    try {
+      const endpoint = `${this.baseUrl}/catalogue`;
+      const response = await fetch(endpoint, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Accept': 'application/json',
         },
       });
       const json = await response.json();
-      const bal = json.data?.balance || json.balance || 0;
-      const curr = json.data?.currency || json.currency || 'USD';
-      return { balance: parseFloat(bal), currency: curr };
-    } catch {
-      return { balance: 0, currency: 'USD' };
+      return json.games || json.data || [];
+    } catch (err: any) {
+      this.logger.error(`Error fetching SoraTopup catalogue: ${err.message}`);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch packages/denominations for a specific game
+   * Endpoint: GET https://soratopup.com/api/v1/packages?game=<code>
+   */
+  async getPackages(gameCode: string): Promise<any[]> {
+    try {
+      const providerGameCode = this.mapGameCode(gameCode);
+      const endpoint = `${this.baseUrl}/packages?game=${encodeURIComponent(providerGameCode)}`;
+      const response = await fetch(endpoint, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Accept': 'application/json',
+        },
+      });
+      const json = await response.json();
+      return json.packages || json.data || [];
+    } catch (err: any) {
+      this.logger.error(`Error fetching SoraTopup packages for ${gameCode}: ${err.message}`);
+      return [];
     }
   }
 
@@ -173,7 +257,6 @@ export class SoraTopupService {
    * Sandbox simulator for realistic local development & automated testing
    */
   private simulateTopupOrder(request: ProviderOrderRequest): ProviderOrderResponse {
-    // If player_id starts with '9999', simulate immediate failure to test refund logic
     if (request.playerId.startsWith('9999') || request.playerId === '00000000') {
       return {
         success: false,
@@ -182,7 +265,6 @@ export class SoraTopupService {
       };
     }
 
-    // If player_id starts with '8888', simulate pending order
     if (request.playerId.startsWith('8888')) {
       const mockId = `SORA-SIM-PND-${Date.now().toString().slice(-6)}`;
       return {
@@ -193,7 +275,6 @@ export class SoraTopupService {
       };
     }
 
-    // Default: Immediate success
     const mockId = `SORA-SIM-OK-${Date.now().toString().slice(-6)}`;
     return {
       success: true,
