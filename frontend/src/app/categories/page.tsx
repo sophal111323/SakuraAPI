@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import {
   Search,
   ArrowLeft,
@@ -499,6 +500,7 @@ export default function CategoriesPage() {
           </div>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

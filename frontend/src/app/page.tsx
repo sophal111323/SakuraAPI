@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { useAuth } from '@/context/AuthContext';
 import { 
@@ -345,41 +346,8 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Enterprise Real Footer */}
-      <footer className="border-t border-[#221c3b] bg-[#070510] mt-24 py-12 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="space-y-1.5 text-center sm:text-left">
-              <img
-                src="/logo.png"
-                alt="SakuraAPI"
-                className="h-9 sm:h-10 w-auto object-contain filter drop-shadow-[0_0_12px_rgba(236,72,153,0.3)] mx-auto sm:mx-0"
-              />
-              <p className="text-[11px] text-zinc-400">Automated Game Top-up Reseller Platform</p>
-            </div>
-
-            <div className="flex items-center gap-6 text-xs text-zinc-400">
-              <Link href="/categories" className="hover:text-pink-400 transition">
-                ហ្គេម & តម្លៃ
-              </Link>
-              <Link href="/docs" className="hover:text-pink-400 transition">
-                ឯកសារ API
-              </Link>
-              <Link href="/login" className="hover:text-pink-400 transition">
-                ចូលគណនី
-              </Link>
-              <Link href="/register" className="hover:text-pink-400 transition">
-                ចុះឈ្មោះ Reseller
-              </Link>
-            </div>
-          </div>
-
-          <div className="border-t border-[#1a1430] pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-zinc-500">
-            <p>sakuraapi.lol &copy; 2026 SakuraAPI. រក្សាសិទ្ធិគ្រប់យ៉ាង។</p>
-            <p className="text-zinc-600">Enterprise High-Throughput Game Distribution System</p>
-          </div>
-        </div>
-      </footer>
+      {/* Enterprise Footer */}
+      <Footer />
     </div>
   );
 }
