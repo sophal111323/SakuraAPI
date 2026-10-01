@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OrdersService } from './orders.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { SoraTopupService } from '../provider/soratopup.service';
+import { Bay2GameService } from '../provider/bay2game.service';
 import { BalanceService } from '../balance/balance.service';
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import { OrderStatus } from '@prisma/client';
@@ -11,17 +12,27 @@ describe('OrdersService', () => {
   let prisma: any;
   let soraTopupService: any;
   let balanceService: any;
+  let bay2gameService: any;
 
   beforeEach(async () => {
+    const gameMock = vi.fn();
     prisma = {
       game: {
-        findUnique: vi.fn(),
+        findUnique: gameMock,
+        findFirst: gameMock,
       },
       product: {
         findFirst: vi.fn(),
       },
       reseller: {
-        findUnique: vi.fn(),
+        findUnique: vi.fn().mockResolvedValue({
+          id: 'res-1',
+          status: 'ACTIVE',
+          balance: '100.0',
+          currency: 'USD',
+          markupPercentage: 0,
+          fixedMarkup: 0,
+        }),
       },
       order: {
         findUnique: vi.fn(),
@@ -44,12 +55,17 @@ describe('OrdersService', () => {
       refundBalanceForOrder: vi.fn(),
     };
 
+    bay2gameService = {
+      checkId: vi.fn().mockResolvedValue({ valid: true, username: 'PlayerOne' }),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         OrdersService,
         { provide: PrismaService, useValue: prisma },
         { provide: SoraTopupService, useValue: soraTopupService },
         { provide: BalanceService, useValue: balanceService },
+        { provide: Bay2GameService, useValue: bay2gameService },
       ],
     }).compile();
 
@@ -143,6 +159,85 @@ describe('OrdersService', () => {
           reseller_order_id: 'DUPLICATE-REF-123',
         }),
       ).rejects.toThrow(ConflictException);
+    });
+
+    it('should throw BadRequestException if reseller balance is insufficient', async () => {
+      prisma.game.findUnique.mockResolvedValue({
+        id: 'game-1',
+        name: 'Free Fire',
+        code: 'free-fire',
+        status: 'ACTIVE',
+        requiresServerId: false,
+      });
+
+      prisma.product.findFirst.mockResolvedValue({
+        id: 'p-1',
+        code: 'ff-100',
+        name: '100 Diamonds',
+        status: 'AVAILABLE',
+        resellerPrice: 15.0,
+        providerPrice: 12.0,
+      });
+
+      prisma.reseller.findUnique.mockResolvedValue({
+        id: 'res-1',
+        status: 'ACTIVE',
+        balance: '5.0', // Only $5.00 available, but product is $15.00
+        currency: 'USD',
+        markupPercentage: 0,
+        fixedMarkup: 0,
+      });
+
+      await expect(
+        service.createOrder('res-1', {
+          game: 'free-fire',
+          product: 'ff-100',
+          player_id: '123456',
+        }),
+      ).rejects.toThrow(/Insufficient balance/);
+    });
+
+    it('should throw BadRequestException if player ID is confirmed not found by validator', async () => {
+      prisma.game.findUnique.mockResolvedValue({
+        id: 'game-1',
+        name: 'Free Fire',
+        code: 'free-fire',
+        status: 'ACTIVE',
+        requiresServerId: false,
+      });
+
+      prisma.product.findFirst.mockResolvedValue({
+        id: 'p-1',
+        code: 'ff-100',
+        name: '100 Diamonds',
+        status: 'AVAILABLE',
+        resellerPrice: 1.0,
+        providerPrice: 0.8,
+      });
+
+      prisma.reseller.findUnique.mockResolvedValue({
+        id: 'res-1',
+        status: 'ACTIVE',
+        balance: '50.0',
+        currency: 'USD',
+        markupPercentage: 0,
+        fixedMarkup: 0,
+      });
+
+      // Mock checkId to report invalid / non-existent user
+      bay2gameService.checkId.mockResolvedValue({
+        valid: false,
+        username: null,
+        message: 'User not found on server.',
+      });
+
+      await expect(
+        service.createOrder('res-1', {
+          game: 'free-fire',
+          product: 'ff-100',
+          player_id: '999999999',
+        }),
+      ).rejects.toThrow(/was verified as INVALID or NOT FOUND/);
     });
   });
 
