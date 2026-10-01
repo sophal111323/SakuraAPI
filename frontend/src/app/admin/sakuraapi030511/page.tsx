@@ -326,7 +326,7 @@ export default function SecretAdminLoginPage() {
                     autoFocus
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="kanhatepi2011@gmail.com"
+                    placeholder="admin@sakuraapi.com"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#080514] border border-[#2d1e56] text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition"
                   />
                 </div>
