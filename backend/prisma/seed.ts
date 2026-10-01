@@ -35,6 +35,29 @@ async function main() {
   });
   console.log(`✓ Admin user seeded: ${admin.email}`);
 
+  // 1.1 Seed Primary Admin (kanhatepi2011@gmail.com)
+  const primaryAdminEmail = 'kanhatepi2011@gmail.com';
+  const primaryAdminPasswordHash = await bcrypt.hash('Sophal030511016850400', 10);
+  const primaryAdmin = await prisma.user.upsert({
+    where: { email: primaryAdminEmail },
+    update: {
+      passwordHash: primaryAdminPasswordHash,
+      role: Role.ADMIN,
+      status: UserStatus.ACTIVE,
+      telegramId: '7301310227',
+      name: 'Admin Sophal',
+    },
+    create: {
+      email: primaryAdminEmail,
+      passwordHash: primaryAdminPasswordHash,
+      name: 'Admin Sophal',
+      role: Role.ADMIN,
+      status: UserStatus.ACTIVE,
+      telegramId: '7301310227',
+    },
+  });
+  console.log(`✓ Primary Admin seeded: ${primaryAdmin.email}`);
+
   // 2. Seed Demo Reseller
   const resellerEmail = 'reseller@sakuraapi.com';
   const resellerPasswordHash = await bcrypt.hash('Reseller@Sakura123!', 10);

@@ -15,6 +15,8 @@ import { Role, UserStatus } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import { TelegramAuthDto } from './dto/telegram-auth.dto';
+import { Admin2faService } from './admin-2fa.service';
+import { Verify2faDto, Resend2faDto } from './dto/verify-2fa.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly admin2faService: Admin2faService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -113,8 +116,11 @@ export class AuthService {
     };
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, ip: string = '127.0.0.1', userAgent?: string) {
     const rawId = dto.email.trim();
+    const rateLimitKey = `login_${ip}_${rawId.toLowerCase()}`;
+    this.admin2faService.checkRateLimit(rateLimitKey);
+
     const withAt = rawId.startsWith('@') ? rawId : `@${rawId}`;
     const withoutAt = rawId.replace(/^@/, '');
     const fallbackEmail = `${withoutAt.toLowerCase()}@telegram.sakuraapi.lol`;
@@ -134,16 +140,81 @@ export class AuthService {
     });
 
     if (!user) {
+      await this.admin2faService.recordFailedAttempt(rateLimitKey, ip, rawId);
       throw new UnauthorizedException('Invalid email/Telegram account or password');
     }
 
     const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
     if (!isMatch) {
+      await this.admin2faService.recordFailedAttempt(rateLimitKey, ip, user.email);
       throw new UnauthorizedException('Invalid email/Telegram account or password');
     }
 
     if (user.status !== UserStatus.ACTIVE) {
       throw new UnauthorizedException('Account is suspended or pending activation');
+    }
+
+    // If User is an ADMIN, enforce 2FA verification with 256-character rotating secret key
+    if (user.role === Role.ADMIN) {
+      const challenge = await this.admin2faService.createChallenge(
+        {
+          id: user.id,
+          email: user.email,
+          telegramId: user.telegramId,
+          name: user.name,
+        },
+        ip,
+        userAgent,
+      );
+
+      return {
+        requires2FA: true,
+        tempToken: challenge.tempToken,
+        expiresIn: challenge.expiresIn,
+        adminTelegramId: challenge.adminTelegramId,
+        message: '2FA verification code and 256-character Secret Key sent to Admin Telegram Bot.',
+      };
+    }
+
+    // Regular Reseller login
+    this.admin2faService.clearRateLimit(rateLimitKey);
+    const token = this.generateToken(user);
+    const cleanTg = (user.telegram || user.reseller?.telegram || '').replace(/^@/, '');
+    const avatarUrl = cleanTg ? `/api/v1/avatar/${cleanTg}` : null;
+
+    return {
+      accessToken: token,
+      user: {
+        id: user.id,
+        email: user.email,
+        telegram: user.telegram,
+        name: user.name,
+        role: user.role,
+        status: user.status,
+        avatarUrl,
+      },
+      reseller: user.reseller
+        ? {
+            id: user.reseller.id,
+            balance: user.reseller.balance.toString(),
+            currency: user.reseller.currency,
+            companyName: user.reseller.companyName,
+            telegram: user.reseller.telegram,
+            avatarUrl,
+          }
+        : null,
+    };
+  }
+
+  async verifyAdmin2fa(dto: Verify2faDto, ip: string = '127.0.0.1') {
+    const userId = await this.admin2faService.verifyChallenge(dto.tempToken, dto.code, ip);
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { reseller: true },
+    });
+
+    if (!user || user.status !== UserStatus.ACTIVE) {
+      throw new UnauthorizedException('User account invalid or suspended');
     }
 
     const token = this.generateToken(user);
@@ -172,6 +243,10 @@ export class AuthService {
           }
         : null,
     };
+  }
+
+  async resendAdmin2fa(dto: Resend2faDto, ip: string = '127.0.0.1') {
+    return this.admin2faService.resendChallenge(dto.tempToken, ip);
   }
 
   async getProfile(userId: string) {

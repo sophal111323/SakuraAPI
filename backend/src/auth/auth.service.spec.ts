@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { Role, UserStatus } from '@prisma/client';
+import { Admin2faService } from './admin-2fa.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -28,6 +29,19 @@ describe('AuthService', () => {
       sign: vi.fn().mockReturnValue('mock-jwt-token'),
     };
 
+    const mockAdmin2faService = {
+      checkRateLimit: vi.fn(),
+      recordFailedAttempt: vi.fn().mockResolvedValue(undefined),
+      clearRateLimit: vi.fn(),
+      createChallenge: vi.fn().mockResolvedValue({
+        tempToken: 'mock-temp-token',
+        expiresIn: 300,
+        adminTelegramId: '7301310227',
+      }),
+      verifyChallenge: vi.fn().mockResolvedValue('mock-user-id'),
+      resendChallenge: vi.fn().mockResolvedValue({ expiresIn: 300 }),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -39,6 +53,7 @@ describe('AuthService', () => {
             get: vi.fn().mockReturnValue('mock-jwt-secret'),
           },
         },
+        { provide: Admin2faService, useValue: mockAdmin2faService },
       ],
     }).compile();
 

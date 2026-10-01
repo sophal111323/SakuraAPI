@@ -1,8 +1,9 @@
-import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Req, UseGuards, HttpCode, HttpStatus, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { Verify2faDto, Resend2faDto } from './dto/verify-2fa.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 
@@ -22,11 +23,33 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Login as Reseller or Admin' })
-  @ApiResponse({ status: 200, description: 'Logged in successfully' })
+  @ApiOperation({ summary: 'Login as Reseller or Admin (triggers 2FA for Admin)' })
+  @ApiResponse({ status: 200, description: 'Logged in successfully or 2FA required' })
   @ApiResponse({ status: 401, description: 'Invalid credentials or inactive account' })
-  async login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  async login(@Body() dto: LoginDto, @Req() req: any) {
+    const ip = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers?.['user-agent'] || 'Unknown';
+    return this.authService.login(dto, ip, userAgent);
+  }
+
+  @Post('admin/verify-2fa')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify Admin 2FA code or 256-character Secret Key' })
+  @ApiResponse({ status: 200, description: '2FA verified, admin session granted' })
+  @ApiResponse({ status: 401, description: 'Invalid or expired 2FA code' })
+  @ApiResponse({ status: 429, description: 'Rate limit exceeded' })
+  async verifyAdmin2fa(@Body() dto: Verify2faDto, @Req() req: any) {
+    const ip = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+    return this.authService.verifyAdmin2fa(dto, ip);
+  }
+
+  @Post('admin/resend-2fa')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Resend fresh 2FA code and 256-character Secret Key to Telegram' })
+  @ApiResponse({ status: 200, description: 'New 2FA code sent' })
+  async resendAdmin2fa(@Body() dto: Resend2faDto, @Req() req: any) {
+    const ip = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+    return this.authService.resendAdmin2fa(dto, ip);
   }
 
   @Post('telegram')

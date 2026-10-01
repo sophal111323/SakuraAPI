@@ -27,7 +27,9 @@ interface AuthContextType {
   reseller: Reseller | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; requires2FA?: boolean; tempToken?: string; expiresIn?: number; adminTelegramId?: string; message?: string }>;
+  verifyAdmin2fa: (tempToken: string, code: string) => Promise<{ success: boolean; error?: string }>;
+  resendAdmin2fa: (tempToken: string) => Promise<{ success: boolean; error?: string }>;
   register: (data: { telegram: string; email?: string; password: string; name: string; companyName?: string }) => Promise<{ success: boolean; error?: string }>;
   telegramAuth: (telegramData: any) => Promise<{ success: boolean; error?: string }>;
   telegramOidcAuth: (code: string, redirectUri: string) => Promise<{ success: boolean; error?: string }>;
@@ -115,12 +117,83 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const payload = json.data || json;
+
+      // Handle Admin 2FA Requirement
+      if (payload.requires2FA) {
+        return {
+          success: false,
+          requires2FA: true,
+          tempToken: payload.tempToken,
+          expiresIn: payload.expiresIn,
+          adminTelegramId: payload.adminTelegramId,
+          message: payload.message,
+        };
+      }
+
       const receivedToken = payload.accessToken;
 
       localStorage.setItem('sakura_token', receivedToken);
       setToken(receivedToken);
       setUser(payload.user);
       setReseller(payload.reseller || null);
+
+      return { success: true };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message || 'Network error connecting to backend',
+      };
+    }
+  };
+
+  const verifyAdmin2fa = async (tempToken: string, code: string) => {
+    try {
+      const res = await fetch(`${API_URL}/auth/admin/verify-2fa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tempToken, code }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        return {
+          success: false,
+          error: json.error?.message || json.message || '2FA verification failed',
+        };
+      }
+
+      const payload = json.data || json;
+      const receivedToken = payload.accessToken;
+
+      localStorage.setItem('sakura_token', receivedToken);
+      setToken(receivedToken);
+      setUser(payload.user);
+      setReseller(payload.reseller || null);
+
+      return { success: true };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message || 'Network error connecting to backend',
+      };
+    }
+  };
+
+  const resendAdmin2fa = async (tempToken: string) => {
+    try {
+      const res = await fetch(`${API_URL}/auth/admin/resend-2fa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tempToken }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        return {
+          success: false,
+          error: json.error?.message || json.message || 'Failed to resend 2FA code',
+        };
+      }
 
       return { success: true };
     } catch (err: any) {
@@ -245,6 +318,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         token,
         loading,
         login,
+        verifyAdmin2fa,
+        resendAdmin2fa,
         register,
         telegramAuth,
         telegramOidcAuth,

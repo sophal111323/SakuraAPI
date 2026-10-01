@@ -8,6 +8,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
 import { ResellerApiGuard } from './guards/reseller-api.guard';
 
+import { Admin2faService } from './admin-2fa.service';
+
 @Global()
 @Module({
   imports: [
@@ -24,7 +26,7 @@ import { ResellerApiGuard } from './guards/reseller-api.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, RolesGuard, ResellerApiGuard],
-  exports: [AuthService, JwtStrategy, PassportModule, JwtModule, RolesGuard, ResellerApiGuard],
+  providers: [AuthService, Admin2faService, JwtStrategy, RolesGuard, ResellerApiGuard],
+  exports: [AuthService, Admin2faService, JwtStrategy, PassportModule, JwtModule, RolesGuard, ResellerApiGuard],
 })
 export class AuthModule {}
