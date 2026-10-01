@@ -12,7 +12,6 @@ import {
   CheckCircle2, 
   ShieldCheck, 
   Code2, 
-  Gamepad2, 
   Copy, 
   Check, 
   Sparkles, 
@@ -62,51 +61,6 @@ export default function Home() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  const popularGames = [
-    {
-      name: 'Mobile Legends: Bang Bang',
-      category: 'MOBA',
-      features: 'Auto Check-ID • Weekly Pass • Diamonds',
-      tag: 'ពេញនិយមបំផុត',
-      badgeColor: 'from-pink-500 to-purple-500',
-    },
-    {
-      name: 'Garena Free Fire',
-      category: 'Battle Royale',
-      features: 'Instant Player ID • Diamonds Auto-Push',
-      tag: 'ល្បឿនលឿន',
-      badgeColor: 'from-amber-500 to-orange-500',
-    },
-    {
-      name: 'PUBG Mobile',
-      category: 'Shooter',
-      features: 'Global & Regional UC • Instant Delivery',
-      tag: 'Hot Stock',
-      badgeColor: 'from-sky-500 to-indigo-500',
-    },
-    {
-      name: 'Honor of Kings',
-      category: 'MOBA',
-      features: 'Direct Tokens • Weekly Card Auto Fulfillment',
-      tag: 'New Game',
-      badgeColor: 'from-emerald-500 to-teal-500',
-    },
-    {
-      name: 'Genshin Impact',
-      category: 'RPG',
-      features: 'Genesis Crystals • Blessing of Welkin Moon',
-      tag: 'Global Server',
-      badgeColor: 'from-purple-500 to-pink-500',
-    },
-    {
-      name: 'Roblox & Digital Codes',
-      category: 'Gift Cards',
-      features: 'Robux Fast Top-up • Steam & E-Vouchers',
-      tag: 'Instant Voucher',
-      badgeColor: 'from-rose-500 to-red-500',
-    },
-  ];
 
   const features = [
     {
@@ -245,61 +199,6 @@ export default function Home() {
               <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400">24/7</div>
               <div className="text-xs text-zinc-400 mt-0.5">សេវាកម្មស្វ័យប្រវត្តិ</div>
             </div>
-          </div>
-        </section>
-
-        {/* Popular Games Catalog */}
-        <section className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-pink-400 uppercase tracking-wider mb-1">
-                <Gamepad2 className="w-3.5 h-3.5" />
-                <span>ស្តុកហ្គេមដែលគាំទ្រ (Supported Games)</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">ហ្គេមពេញនិយមដែលកំពុងដំណើរការ</h2>
-            </div>
-            <Link
-              href="/categories"
-              className="text-xs text-pink-400 hover:text-pink-300 font-semibold inline-flex items-center gap-1 transition"
-            >
-              <span>មើលបញ្ជីផលិតផលទាំងអស់</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {popularGames.map((game, idx) => (
-              <div
-                key={idx}
-                className="group p-5 rounded-2xl bg-[#120d26]/90 border border-[#271d4a] hover:border-pink-500/40 hover:bg-[#181135] transition-all duration-300 space-y-3 relative overflow-hidden"
-              >
-                <div className="flex items-center justify-between">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${game.badgeColor} text-white shadow-sm`}>
-                    {game.tag}
-                  </span>
-                  <span className="text-[11px] text-zinc-500 font-mono">{game.category}</span>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-bold text-white group-hover:text-pink-300 transition">
-                    {game.name}
-                  </h3>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    {game.features}
-                  </p>
-                </div>
-
-                <div className="pt-2 border-t border-[#221942] flex items-center justify-between text-xs">
-                  <span className="text-emerald-400 font-medium flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    ស្វ័យប្រវត្តិភ្លាមៗ
-                  </span>
-                  <span className="text-zinc-500 group-hover:text-pink-400 transition font-medium flex items-center gap-0.5">
-                    បញ្ជាទិញតាម API <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition" />
-                  </span>
-                </div>
-              </div>
-            ))}
           </div>
         </section>
 
