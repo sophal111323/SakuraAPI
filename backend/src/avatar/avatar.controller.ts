@@ -8,6 +8,20 @@ import { AvatarService } from './avatar.service';
 export class AvatarController {
   constructor(private readonly avatarService: AvatarService) {}
 
+  @Get('games/:filename')
+  @ApiOperation({ summary: 'Get game logo uploaded on VPS' })
+  getGameLogo(@Param('filename') filename: string, @Res() res: Response) {
+    const path = require('path');
+    const fs = require('fs');
+    const filePath = path.resolve(process.cwd(), 'uploads', 'games', path.basename(filename));
+    if (fs.existsSync(filePath)) {
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=604800');
+      return res.sendFile(filePath);
+    }
+    return res.status(HttpStatus.NOT_FOUND).send('Logo not found');
+  }
+
   @Get(':username')
   @ApiOperation({
     summary: "Get reseller's Telegram profile avatar (stored on VPS)",

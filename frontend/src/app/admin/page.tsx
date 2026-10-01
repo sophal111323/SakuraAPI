@@ -18,6 +18,7 @@ import {
   RefreshCw,
   ChevronRight,
   ExternalLink,
+  Gamepad2,
   DollarSign,
   AlertTriangle
 } from 'lucide-react';
@@ -163,6 +164,81 @@ export default function AdminDashboardPage() {
               <span>Balance Manager</span>
             </Link>
           </div>
+        </div>
+
+        {/* Quick Management Hub */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Link
+            href="/admin/games"
+            className="p-4 rounded-2xl bg-[#130f26] border border-[#2b2252] hover:border-pink-500/50 transition group shadow-lg flex flex-col justify-between space-y-2"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-9 h-9 rounded-xl bg-pink-500/15 border border-pink-500/30 flex items-center justify-center text-pink-400">
+                <Gamepad2 className="w-5 h-5" />
+              </div>
+              <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-pink-400 group-hover:translate-x-0.5 transition" />
+            </div>
+            <div>
+              <div className="font-bold text-white text-xs sm:text-sm group-hover:text-pink-300 transition">
+                គ្រប់គ្រងហ្គេម & ស្តុក
+              </div>
+              <div className="text-[10px] text-zinc-400">Add games, logo, items</div>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/resellers"
+            className="p-4 rounded-2xl bg-[#130f26] border border-[#2b2252] hover:border-purple-500/50 transition group shadow-lg flex flex-col justify-between space-y-2"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-9 h-9 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                <Users className="w-5 h-5" />
+              </div>
+              <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-purple-400 group-hover:translate-x-0.5 transition" />
+            </div>
+            <div>
+              <div className="font-bold text-white text-xs sm:text-sm group-hover:text-purple-300 transition">
+                គ្រប់គ្រង Resellers
+              </div>
+              <div className="text-[10px] text-zinc-400">Accounts, quick top-up</div>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/balance"
+            className="p-4 rounded-2xl bg-[#130f26] border border-[#2b2252] hover:border-emerald-500/50 transition group shadow-lg flex flex-col justify-between space-y-2"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <Coins className="w-5 h-5" />
+              </div>
+              <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition" />
+            </div>
+            <div>
+              <div className="font-bold text-white text-xs sm:text-sm group-hover:text-emerald-300 transition">
+                បញ្ចូល/កាត់លុយ (Balance)
+              </div>
+              <div className="text-[10px] text-zinc-400">Credit / Debit ledger</div>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/logs"
+            className="p-4 rounded-2xl bg-[#130f26] border border-[#2b2252] hover:border-indigo-500/50 transition group shadow-lg flex flex-col justify-between space-y-2"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                <Activity className="w-5 h-5" />
+              </div>
+              <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition" />
+            </div>
+            <div>
+              <div className="font-bold text-white text-xs sm:text-sm group-hover:text-indigo-300 transition">
+                API Request Logs
+              </div>
+              <div className="text-[10px] text-zinc-400">Live API monitoring</div>
+            </div>
+          </Link>
         </div>
 
         {/* High-Level Financial Metrics */}

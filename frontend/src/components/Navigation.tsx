@@ -44,9 +44,10 @@ export default function Navigation() {
   ];
 
   const adminNavItems = [
-    { label: 'Admin Overview', href: '/admin', icon: ShieldCheck, exact: true },
-    { label: 'Resellers', href: '/admin/resellers', icon: Users },
-    { label: 'Balance Manager', href: '/admin/balance', icon: Coins },
+    { label: 'ផ្ទាំងគ្រប់គ្រង (Admin)', href: '/admin', icon: ShieldCheck, exact: true },
+    { label: 'គ្រប់គ្រងហ្គេម & ស្តុក', href: '/admin/games', icon: Gamepad2 },
+    { label: 'គ្រប់គ្រង Reseller', href: '/admin/resellers', icon: Users },
+    { label: 'បញ្ចូល/កាត់លុយ (Balance)', href: '/admin/balance', icon: Coins },
     { label: 'Request Logs', href: '/admin/logs', icon: Activity },
     { label: 'Reseller Portal', href: '/dashboard', icon: LayoutDashboard },
   ];

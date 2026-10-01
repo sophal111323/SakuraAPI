@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -10,7 +11,11 @@ import { ResellerQueryDto } from './dto/reseller-query.dto';
 import { AdjustBalanceDto } from './dto/adjust-balance.dto';
 import { UpdatePricingDto } from './dto/update-pricing.dto';
 import { LogsQueryDto } from './dto/logs-query.dto';
-import { Prisma, ResellerStatus, TransactionType } from '@prisma/client';
+import { CreateGameDto } from './dto/create-game.dto';
+import { UpdateGameDto } from './dto/update-game.dto';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { Prisma, ResellerStatus, TransactionType, GameStatus, ProductStatus } from '@prisma/client';
 
 @Injectable()
 export class AdminService {
@@ -462,5 +467,205 @@ export class AdminService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  // ==========================================
+  // GAME & PRODUCT CATALOG MANAGEMENT
+  // ==========================================
+
+  async getGames() {
+    const games = await this.prisma.game.findMany({
+      orderBy: { createdAt: 'asc' },
+      include: {
+        products: {
+          orderBy: { resellerPrice: 'asc' },
+        },
+        _count: {
+          select: { orders: true },
+        },
+      },
+    });
+
+    return games.map((g) => ({
+      id: g.id,
+      code: g.code,
+      name: g.name,
+      category: g.category || 'General',
+      iconUrl: g.iconUrl,
+      requiresServerId: g.requiresServerId,
+      serverIdLabel: g.serverIdLabel,
+      playerIdLabel: g.playerIdLabel,
+      status: g.status,
+      ordersCount: g._count.orders,
+      productsCount: g.products.length,
+      products: g.products.map((p) => ({
+        id: p.id,
+        code: p.code,
+        name: p.name,
+        resellerPrice: Number(p.resellerPrice),
+        providerPrice: Number(p.providerPrice),
+        status: p.status,
+        providerProductId: p.providerProductId,
+        createdAt: p.createdAt,
+      })),
+      createdAt: g.createdAt,
+    }));
+  }
+
+  async createGame(dto: CreateGameDto) {
+    const cleanCode = dto.code.toLowerCase().trim().replace(/[_\s]/g, '-');
+    const existing = await this.prisma.game.findUnique({
+      where: { code: cleanCode },
+    });
+    if (existing) {
+      throw new ConflictException(`Game code '${cleanCode}' already exists`);
+    }
+
+    return this.prisma.game.create({
+      data: {
+        code: cleanCode,
+        name: dto.name.trim(),
+        category: dto.category?.trim() || 'General',
+        iconUrl: dto.iconUrl?.trim() || null,
+        requiresServerId: Boolean(dto.requiresServerId),
+        serverIdLabel: dto.serverIdLabel?.trim() || 'Server ID',
+        playerIdLabel: dto.playerIdLabel?.trim() || 'Player ID',
+        status: dto.status || GameStatus.ACTIVE,
+      },
+      include: {
+        products: true,
+      },
+    });
+  }
+
+  async updateGame(id: string, dto: UpdateGameDto) {
+    const game = await this.prisma.game.findUnique({ where: { id } });
+    if (!game) {
+      throw new NotFoundException(`Game not found`);
+    }
+
+    return this.prisma.game.update({
+      where: { id },
+      data: {
+        ...(dto.name ? { name: dto.name.trim() } : {}),
+        ...(dto.category ? { category: dto.category.trim() } : {}),
+        ...(dto.iconUrl !== undefined ? { iconUrl: dto.iconUrl } : {}),
+        ...(dto.requiresServerId !== undefined ? { requiresServerId: dto.requiresServerId } : {}),
+        ...(dto.serverIdLabel ? { serverIdLabel: dto.serverIdLabel.trim() } : {}),
+        ...(dto.playerIdLabel ? { playerIdLabel: dto.playerIdLabel.trim() } : {}),
+        ...(dto.status ? { status: dto.status } : {}),
+      },
+      include: {
+        products: true,
+      },
+    });
+  }
+
+  async deleteGame(id: string) {
+    const game = await this.prisma.game.findUnique({
+      where: { id },
+      include: { _count: { select: { orders: true } } },
+    });
+    if (!game) {
+      throw new NotFoundException('Game not found');
+    }
+
+    if (game._count.orders > 0) {
+      return this.prisma.game.update({
+        where: { id },
+        data: { status: GameStatus.INACTIVE },
+      });
+    }
+
+    return this.prisma.game.delete({ where: { id } });
+  }
+
+  async createProduct(gameId: string, dto: CreateProductDto) {
+    const game = await this.prisma.game.findUnique({ where: { id: gameId } });
+    if (!game) {
+      throw new NotFoundException('Game not found');
+    }
+
+    const cleanCode = dto.code.toLowerCase().trim();
+    const existing = await this.prisma.product.findUnique({
+      where: {
+        gameId_code: {
+          gameId,
+          code: cleanCode,
+        },
+      },
+    });
+
+    if (existing) {
+      throw new ConflictException(`Product code '${cleanCode}' already exists for ${game.name}`);
+    }
+
+    return this.prisma.product.create({
+      data: {
+        gameId,
+        code: cleanCode,
+        name: dto.name.trim(),
+        resellerPrice: dto.resellerPrice,
+        providerPrice: dto.providerPrice ?? dto.resellerPrice,
+        providerProductId: dto.providerProductId?.trim() || null,
+        status: dto.status || ProductStatus.AVAILABLE,
+      },
+    });
+  }
+
+  async updateProduct(id: string, dto: UpdateProductDto) {
+    const product = await this.prisma.product.findUnique({ where: { id } });
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    return this.prisma.product.update({
+      where: { id },
+      data: {
+        ...(dto.name ? { name: dto.name.trim() } : {}),
+        ...(dto.resellerPrice !== undefined ? { resellerPrice: dto.resellerPrice } : {}),
+        ...(dto.providerPrice !== undefined ? { providerPrice: dto.providerPrice } : {}),
+        ...(dto.providerProductId !== undefined ? { providerProductId: dto.providerProductId } : {}),
+        ...(dto.status ? { status: dto.status } : {}),
+      },
+    });
+  }
+
+  async deleteProduct(id: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      include: { _count: { select: { orders: true } } },
+    });
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    if (product._count.orders > 0) {
+      return this.prisma.product.update({
+        where: { id },
+        data: { status: ProductStatus.DISABLED },
+      });
+    }
+
+    return this.prisma.product.delete({ where: { id } });
+  }
+
+  async uploadGameLogo(base64Data: string, gameCode?: string): Promise<string> {
+    const fs = require('fs');
+    const path = require('path');
+    const dir = path.resolve(process.cwd(), 'uploads', 'games');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    const cleanCode = (gameCode || `game_${Date.now()}`).toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+    const filename = `${cleanCode}_${Date.now()}.png`;
+    const filePath = path.join(dir, filename);
+
+    const base64Clean = base64Data.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Clean, 'base64');
+    fs.writeFileSync(filePath, buffer);
+
+    return `/api/v1/avatar/games/${filename}`;
   }
 }
