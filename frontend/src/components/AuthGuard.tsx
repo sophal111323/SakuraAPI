@@ -13,21 +13,23 @@ interface AuthGuardProps {
 
 export default function AuthGuard({
   children,
-  redirectTo = '/register',
+  redirectTo,
   adminOnly = false,
 }: AuthGuardProps) {
   const { user, token, loading } = useAuth();
   const router = useRouter();
 
+  const destination = redirectTo || (adminOnly ? '/admin/sakuraapi030511' : '/register');
+
   useEffect(() => {
     if (!loading) {
       if (!user && !token) {
-        router.replace(redirectTo);
+        router.replace(destination);
       } else if (adminOnly && user && user.role !== 'ADMIN') {
         router.replace('/dashboard');
       }
     }
-  }, [user, token, loading, router, redirectTo, adminOnly]);
+  }, [user, token, loading, router, destination, adminOnly]);
 
   // While checking auth state or if user has no account, display smooth loading screen
   if (loading || (!user && !token)) {
